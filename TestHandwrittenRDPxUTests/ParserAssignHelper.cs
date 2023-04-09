@@ -8,7 +8,7 @@ namespace TestHandwrittenRDPxUTests
 	{
         public static BaseLiteral? AssignParser(string toParse)
         {
-            return new MyParser().Parse(toParse);
+            return new RecursiveDescentParserForOOP().Parse(toParse);
         }
 
         public static ProgramLiteral AssignAST_SingleExpression(BaseLiteral? baseLiteral)
