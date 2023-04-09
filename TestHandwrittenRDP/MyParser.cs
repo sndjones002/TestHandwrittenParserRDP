@@ -73,11 +73,12 @@ namespace TestHandwrittenRDP
 		///		;
         /// </summary>
         /// <returns></returns>
-        private List<StatementRule> StatementList()
+        private List<StatementRule> StatementList(ETokenType? stopLookaheadType = null)
 		{
 			var statementList = new List<StatementRule>();
 
-			while(this._lookahead != null)
+			while(this._lookahead != null &&
+				(stopLookaheadType != null? this._lookahead.TokenType != stopLookaheadType : true))
 			{
 				var statement = this.Statement();
 
@@ -94,12 +95,17 @@ namespace TestHandwrittenRDP
         /// Statement
 		///		: ExpressionStatement
 		///		| BlockStatement
+		///		| EmptyStatement
 		///		;
         /// </summary>
         private StatementRule Statement()
 		{
 			switch (this._lookahead.TokenType)
 			{
+				// Checking the semicolon for empty statement.
+				// This is a case of predictive parsing, we are looking ahead
+				case ETokenType.SEMICOLON:
+					return this.EmptyStatement();
 				case ETokenType.OPEN_CURLY_BRACES:
 					return this.BlockStatement();
 				default:
@@ -107,17 +113,23 @@ namespace TestHandwrittenRDP
             }
 		}
 
-		/// <summary>
-		/// BlockStatement
-		///		: '{' OptStatementList '}'
-		///		;
-		/// </summary>
-		/// <returns></returns>
-		private BlockStatementRule BlockStatement()
+		private StatementRule EmptyStatement()
+		{
+            this.Eat(ETokenType.SEMICOLON);
+			return new StatementRule(ELiteralType.EmptyStatement);
+        }
+
+        /// <summary>
+        /// BlockStatement
+        ///		: '{' OptStatementList '}'
+        ///		;
+        /// </summary>
+        /// <returns></returns>
+        private BlockStatementRule BlockStatement()
 		{
 			this.Eat(ETokenType.OPEN_CURLY_BRACES);
 
-			var blockBody = (this._lookahead.TokenType == ETokenType.CLOSE_CURLY_BRACES)? new List<StatementRule>() : this.StatementList();
+			var blockBody = (this._lookahead.TokenType == ETokenType.CLOSE_CURLY_BRACES)? new List<StatementRule>() : this.StatementList(ETokenType.CLOSE_CURLY_BRACES);
 
 			this.Eat(ETokenType.CLOSE_CURLY_BRACES);
 

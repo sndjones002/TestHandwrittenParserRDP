@@ -8,6 +8,7 @@ namespace TestHandwrittenRDP
 		StringLiteral,
 
 		Statement,
+		EmptyStatement,
 		ExpressionStatement,
 		BlockStatement
 	}
