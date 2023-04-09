@@ -11,12 +11,10 @@ namespace TestHandwrittenRDPxUTests
             var parsedResult = ParserAssignHelper.AssignParser(@"{}");
 
             ParserAssertHelper.AssertAST(parsedResult,
-                new BaseRuleList(
-                    new BaseRule[] {
-                        new BaseRuleList(
-                            new BaseRule[] {
-                            }, ELiteralType.BlockStatement)
-                    }, ELiteralType.Program)
+                new ProgramRule(
+                    new List<BaseRule> {
+                        new BlockStatementRule(new List<BaseRule>())
+                    })
                 );
         }
 
@@ -26,10 +24,10 @@ namespace TestHandwrittenRDPxUTests
             var parsedResult = ParserAssignHelper.AssignParser(@";");
 
             ParserAssertHelper.AssertAST(parsedResult,
-                new BaseRuleList(
-                    new BaseRule[] {
-                        new BaseRule(null, ELiteralType.EmptyStatement)
-                    }, ELiteralType.Program)
+                new ProgramRule(
+                    new List<BaseRule> {
+                        new EmptyStatementRule()
+                    })
                 );
         }
 
@@ -39,14 +37,13 @@ namespace TestHandwrittenRDPxUTests
             var parsedResult = ParserAssignHelper.AssignParser(@"{;}");
 
             ParserAssertHelper.AssertAST(parsedResult,
-                new BaseRuleList(
-                    new BaseRule[] {
-                        new BaseRuleList(
-                            new BaseRule[] {
-                                new BaseRule(null, ELiteralType.EmptyStatement)
-                            }, ELiteralType.BlockStatement)
-                
-                    }, ELiteralType.Program)
+                new ProgramRule(
+                    new List<BaseRule> {
+                        new BlockStatementRule(
+                            new List<BaseRule> {
+                                new EmptyStatementRule()
+                            })
+                    })
                    );
         }
 
@@ -57,14 +54,14 @@ namespace TestHandwrittenRDPxUTests
 ""hello"";}");
 
             ParserAssertHelper.AssertAST(parsedResult,
-                new BaseRuleList(
-                    new BaseRule[] {
-                        new BaseRuleList(new BaseRule[]
+                new ProgramRule(
+                    new List<BaseRule> {
+                        new BlockStatementRule(new List<BaseRule>
                         {
-                            new BaseRule(new NumericLiteralRule(456), ELiteralType.ExpressionStatement),
-                            new BaseRule(new StringLiteralRule("hello"), ELiteralType.ExpressionStatement)
-                        }, ELiteralType.BlockStatement)
-                    }, ELiteralType.Program)
+                            new ExpressionStatementRule(new NumericLiteralRule(456)),
+                            new ExpressionStatementRule(new StringLiteralRule("hello"))
+                        })
+                    })
                 );
         }
 
@@ -80,17 +77,17 @@ namespace TestHandwrittenRDPxUTests
 }");
 
             ParserAssertHelper.AssertAST(parsedResult,
-                new BaseRuleList(
-                    new BaseRule[] {
-                        new BaseRuleList(new BaseRule[]
+                new ProgramRule(
+                    new List<BaseRule> {
+                        new BlockStatementRule(new List<BaseRule>
                         {
-                            new BaseRule(new NumericLiteralRule(456), ELiteralType.ExpressionStatement),
-                            new BaseRuleList(new BaseRule[]
+                            new ExpressionStatementRule(new NumericLiteralRule(456)),
+                            new BlockStatementRule(new List<BaseRule>
                             {
-                                new BaseRule(new StringLiteralRule("hello"), ELiteralType.ExpressionStatement)
-                            }, ELiteralType.BlockStatement)
-                        }, ELiteralType.BlockStatement)
-                    }, ELiteralType.Program)
+                                new ExpressionStatementRule(new StringLiteralRule("hello"))
+                            })
+                        })
+                    })
                 );
         }
     }

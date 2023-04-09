@@ -20,6 +20,10 @@ namespace TestHandwrittenRDP
                 (@"\G;", ETokenType.SEMICOLON),
                 (@"\G{", ETokenType.OPEN_CURLY_BRACES),
                 (@"\G}", ETokenType.CLOSE_CURLY_BRACES),
+                (@"\G[+-]", ETokenType.ADDITIVE_OPERATOR),
+                (@"\G[*/]", ETokenType.MULTIPLICATIVE_OPERATOR),
+                (@"\G\(", ETokenType.LEFT_PARENTHESIS),
+                (@"\G\)", ETokenType.RIGHT_PARENTHESIS),
             };
 
         public void Init(string data)
@@ -84,6 +88,14 @@ namespace TestHandwrittenRDP
                         return new BaseToken(ETokenType.OPEN_CURLY_BRACES, matched.Value);
                     case ETokenType.CLOSE_CURLY_BRACES:
                         return new BaseToken(ETokenType.CLOSE_CURLY_BRACES, matched.Value);
+                    case ETokenType.ADDITIVE_OPERATOR:
+                        return new BaseToken(ETokenType.ADDITIVE_OPERATOR, matched.Value);
+                    case ETokenType.MULTIPLICATIVE_OPERATOR:
+                        return new BaseToken(ETokenType.MULTIPLICATIVE_OPERATOR, matched.Value);
+                    case ETokenType.LEFT_PARENTHESIS:
+                        return new BaseToken(ETokenType.LEFT_PARENTHESIS, matched.Value);
+                    case ETokenType.RIGHT_PARENTHESIS:
+                        return new BaseToken(ETokenType.RIGHT_PARENTHESIS, matched.Value);
                     default:
 						return null;
                 }
@@ -108,11 +120,6 @@ namespace TestHandwrittenRDP
         {
 			return this._cursor < this._data.Length;
         }
-
-		private bool IsEOF()
-		{
-			return this._cursor == this._data.Length;
-		}
 
 		private bool ShouldTokenBeSkipped(ETokenType tokenType)
 		{

@@ -13,6 +13,5 @@ namespace TestHandwrittenRDP
     public record WhitespacesToken(string Value) : BaseToken(ETokenType.WHITESPACES, Value);
     public record CommentToken(string Value) : BaseToken(ETokenType.COMMENT, Value);
     public record MultilineCommentToken(string Value) : BaseToken(ETokenType.MULTILINE_COMMENT, Value);
-    public record SemicolonToken(string Value) : BaseToken(ETokenType.SEMICOLON, Value);
 }
 

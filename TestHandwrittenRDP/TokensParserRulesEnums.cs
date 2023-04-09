@@ -9,12 +9,9 @@ namespace TestHandwrittenRDP
 
 		EmptyStatement,
 		ExpressionStatement,
-		BlockStatement
-	}
+		BlockStatement,
 
-    public enum ESERuleType
-	{
-		begin
+		BinaryExpression,
 	}
 
     public enum ETokenType
@@ -45,7 +42,13 @@ namespace TestHandwrittenRDP
 		OPEN_CURLY_BRACES, // Marks the start of BlockStatement
         CLOSE_CURLY_BRACES, // Marks the end of BlockStatement
 
+		LEFT_PARENTHESIS,
+        RIGHT_PARENTHESIS,
+
         #endregion Markers
+
+        ADDITIVE_OPERATOR,
+		MULTIPLICATIVE_OPERATOR,
     }
 }
 

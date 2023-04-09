@@ -43,7 +43,7 @@ namespace TestHandwrittenRDP
 				throw new SyntaxErrorException($"Unexpected end of input, expected: '{tokenType}'");
 
             if (token.TokenType != tokenType)
-                throw new SyntaxErrorException($"Unexpected token: '${token.Value}', expected: '{tokenType}'");
+                throw new SyntaxErrorException($"Unexpected token: '{token.Value}', expected: '{tokenType}'");
 
 			// Advance tokenizer to next token
 			this._lookahead = this._tokenizer.GetNextToken();
@@ -115,7 +115,13 @@ namespace TestHandwrittenRDP
             }
 		}
 
-		private BaseRule EmptyStatement()
+        /// <summary>
+        /// EmptyStatement
+		///		: ';'
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule EmptyStatement()
 		{
             this.Eat(ETokenType.SEMICOLON);
 			return _astFactory.EmptyStatement();
@@ -131,6 +137,7 @@ namespace TestHandwrittenRDP
 		{
 			this.Eat(ETokenType.OPEN_CURLY_BRACES);
 
+			// This is the optional statement list
 			var blockBody = (this._lookahead.TokenType == ETokenType.CLOSE_CURLY_BRACES)? new List<BaseRule>() : this.StatementList(ETokenType.CLOSE_CURLY_BRACES);
 
 			this.Eat(ETokenType.CLOSE_CURLY_BRACES);
@@ -154,15 +161,103 @@ namespace TestHandwrittenRDP
 			return this._astFactory.ExpressionStatement(expression);
         }
 
-		/// <summary>
-		/// Expression
-		///		: Literal
-		///		;
-		/// </summary>
-		/// <returns></returns>
-		private BaseRule Expression()
+        /// <summary>
+        /// Expression
+        ///		: AdditiveExpression
+        ///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule Expression()
 		{
-			return this.Literal();
+			return this.AdditiveExpression();
+		}
+
+        /// <summary>
+        /// Literal (Operand) has the higher precedence than the operator.
+        /// That means the lietral will be inside the binary expression.
+        /// [The closer the production is to the starting symbol the lower the
+        /// precedence it has.]
+        /// 
+        /// AdditiveExpression
+        ///		: MultiplicativeExpression
+        ///		| AdditiveExpression ADDITIVE_OPERATOR MultiplicativeExpression
+		///		--> (remove left recursion)
+        ///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule AdditiveExpression()
+		{
+			return this.BinaryExpression(ETokenType.ADDITIVE_OPERATOR, this.MultiplicativeExpression);
+		}
+
+        /// <summary>
+        /// MultiplicativeExpression
+		///		: PrimaryExpression
+		///		| MultiplicativeExpression MULTIPLICATIVE_OPERATOR PrimaryExpression
+		///		--> (Remove left recursion)
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule MultiplicativeExpression()
+		{
+            return this.BinaryExpression(ETokenType.MULTIPLICATIVE_OPERATOR, this.PrimaryExpression);
+        }
+
+        /// <summary>
+        /// MultiplicativeExpression and AdditiveExpression has the same logic differs only by
+		/// rule builder method and the token types.
+        /// </summary>
+        /// <param name="tokenType"></param>
+        /// <param name="ruleBuilder"></param>
+        /// <returns></returns>
+        private BaseRule BinaryExpression(ETokenType tokenType, Func<BaseRule> ruleBuilder)
+		{
+            var left = ruleBuilder();
+
+            while (this._lookahead != null && this._lookahead.TokenType == tokenType)
+            {
+                var op = this.Eat(tokenType);
+                var right = ruleBuilder();
+
+                left = new BinaryExpressionRule(op, left, right);
+            }
+
+            return left;
+        }
+
+        /// <summary>
+        /// PrimaryExpression
+		///		: Literal
+		///		| ParenthesizedExpression
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule PrimaryExpression()
+		{
+			switch(this._lookahead.TokenType)
+			{
+				case ETokenType.LEFT_PARENTHESIS:
+					return this.ParenthesizedExpression();
+				default:
+                    return this.Literal();
+            }
+		}
+
+        /// <summary>
+        /// ParenthesizedExpression
+		///		: '(' Expression ')'
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule ParenthesizedExpression()
+		{
+			this.Eat(ETokenType.LEFT_PARENTHESIS);
+
+			var expression = this.Expression();
+
+			this.Eat(ETokenType.RIGHT_PARENTHESIS);
+
+			return expression;
 		}
 
         /// <summary>

@@ -6,7 +6,7 @@ namespace TestHandwrittenRDPxUTests
 {
 	public static class ParserAssertHelper
 	{
-        public static void AssertAST(BaseRule? resultAst, BaseRuleList expectedAst)
+        public static void AssertAST(BaseRule? resultAst, BaseRule expectedAst)
         {
             Assert.NotNull(resultAst);
             Assert.Equal(

@@ -3,8 +3,8 @@ using TestHandwrittenRDP;
 
 namespace TestHandwrittenRDPxUTests
 {
-	public class EmptyClass
-	{
+	public class ParserSkippedTokensTest
+    {
         [Fact]
         public void SkipWhitespaces()
         {

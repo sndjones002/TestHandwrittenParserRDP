@@ -5,24 +5,24 @@ namespace TestHandwrittenRDP
 {
 	public abstract class ASTFactoryBase
 	{
-        public virtual BaseRuleList Program(List<BaseRule> body)
+        public virtual ProgramRule Program(List<BaseRule> body)
         {
-            return new BaseRuleList(body.ToArray(), ELiteralType.Program);
+            return new ProgramRule(body);
         }
 
-        public virtual BaseRule EmptyStatement()
+        public virtual EmptyStatementRule EmptyStatement()
         {
-            return new BaseRule(null, ELiteralType.EmptyStatement);
+            return new EmptyStatementRule();
         }
 
-        public virtual BaseRuleList BlockStatement(List<BaseRule> blockBody)
+        public virtual BlockStatementRule BlockStatement(List<BaseRule> blockBody)
         {
-            return new BaseRuleList(blockBody.ToArray(), ELiteralType.BlockStatement);
+            return new BlockStatementRule(blockBody);
         }
 
-        public virtual BaseRule ExpressionStatement(BaseRule expression)
+        public virtual ExpressionStatementRule ExpressionStatement(BaseRule expression)
         {
-            return new BaseRule(expression, ELiteralType.ExpressionStatement);
+            return new ExpressionStatementRule(expression);
         }
 
         public virtual NumericLiteralRule NumericLiteral(string value)

@@ -11,15 +11,13 @@ namespace TestHandwrittenRDPxUTests
             return new RecursiveDescentParserForOOP().Parse(toParse);
         }
 
-        public static BaseRuleList AssignAST_SingleExpression(BaseRule? baseLiteral)
+        public static BaseRule AssignAST_SingleExpression(BaseRule? baseLiteral)
         {
-            return new BaseRuleList(
-                       new BaseRule[]
+            return new ProgramRule(
+                       new List<BaseRule>
                        {
-                        new BaseRule(baseLiteral, ELiteralType.ExpressionStatement)
-                       },
-                       ELiteralType.Program
-                   );
+                        new ExpressionStatementRule(baseLiteral)
+                       });
         }
     }
 }

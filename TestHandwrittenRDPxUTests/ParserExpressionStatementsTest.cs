@@ -12,10 +12,10 @@ namespace TestHandwrittenRDPxUTests
             var parsedResult = ParserAssignHelper.AssignParser(@"456;");
 
             ParserAssertHelper.AssertAST(parsedResult,
-                new BaseRuleList(
-                    new BaseRule[] {
-                        new BaseRule(new NumericLiteralRule(456), ELiteralType.ExpressionStatement)
-                    }, ELiteralType.Program)
+                new ProgramRule(
+                    new List<BaseRule> {
+                        new ExpressionStatementRule(new NumericLiteralRule(456))
+                    })
                 );
         }
 
@@ -25,11 +25,11 @@ namespace TestHandwrittenRDPxUTests
             var parsedResult = ParserAssignHelper.AssignParser(@"456;""hello"";");
 
             ParserAssertHelper.AssertAST(parsedResult,
-                new BaseRuleList(
-                    new BaseRule[] {
-                        new BaseRule(new NumericLiteralRule(456), ELiteralType.ExpressionStatement),
-                        new BaseRule(new StringLiteralRule("hello"), ELiteralType.ExpressionStatement)
-                    }, ELiteralType.Program)
+                new ProgramRule(
+                    new List<BaseRule> {
+                        new ExpressionStatementRule(new NumericLiteralRule(456)),
+                        new ExpressionStatementRule(new StringLiteralRule("hello"))
+                    })
                 );
         }
 
@@ -46,26 +46,18 @@ namespace TestHandwrittenRDPxUTests
       ");
 
             ParserAssertHelper.AssertAST(parsedResult,
-                new BaseRuleList(
-                    new BaseRule[] {
-                        new BaseRule(new NumericLiteralRule(456), ELiteralType.ExpressionStatement),
-                        new BaseRule(new StringLiteralRule("hello"), ELiteralType.ExpressionStatement)
-                    }, ELiteralType.Program)
+                new ProgramRule(
+                    new List<BaseRule> {
+                        new ExpressionStatementRule(new NumericLiteralRule(456)),
+                        new ExpressionStatementRule(new StringLiteralRule("hello"))
+                    })
                 );
         }
 
         [Fact]
         public void SimpleStatementsWithoutSemicolonException()
         {
-            var parsedResult = () => ParserAssignHelper.AssignParser(@"
-      /* This is a number
-       * with Multiline comment
-      */
-      456;
-      // A String Expression
-      ""hello""
-      "
-            );
+            var parsedResult = () => ParserAssignHelper.AssignParser(@"456");
 
             var exception = Assert.Throws<SyntaxErrorException>(parsedResult);
             Assert.Equal($"Unexpected end of input, expected: '{ETokenType.SEMICOLON}'", exception.Message);
