@@ -7,13 +7,17 @@ namespace TestHandwrittenRDP
 		NumericLiteral,
 		StringLiteral,
 
-		Statement,
 		EmptyStatement,
 		ExpressionStatement,
 		BlockStatement
 	}
 
-	public enum ETokenType
+    public enum ESERuleType
+	{
+		begin
+	}
+
+    public enum ETokenType
 	{
 		NUMBER,
         STRING,

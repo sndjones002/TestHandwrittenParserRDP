@@ -13,7 +13,7 @@ public class ParserLiteralTests
     {
         var parsedResult = ParserAssignHelper.AssignParser("4567;");
 
-        ParserAssertHelper.AssertAST(parsedResult, ParserAssignHelper.AssignAST_SingleExpression(new NumericLiteral(4567)));
+        ParserAssertHelper.AssertAST(parsedResult, ParserAssignHelper.AssignAST_SingleExpression(new NumericLiteralRule(4567)));
     }
 
     [Fact]
@@ -21,6 +21,6 @@ public class ParserLiteralTests
     {
         var parsedResult = ParserAssignHelper.AssignParser("\"hello\";");
 
-        ParserAssertHelper.AssertAST(parsedResult, ParserAssignHelper.AssignAST_SingleExpression(new StringLiteral("hello")));
+        ParserAssertHelper.AssertAST(parsedResult, ParserAssignHelper.AssignAST_SingleExpression(new StringLiteralRule("hello")));
     }
 }

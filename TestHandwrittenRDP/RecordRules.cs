@@ -4,23 +4,14 @@ using System.Text.RegularExpressions;
 
 namespace TestHandwrittenRDP
 {
-    [JsonDerivedType(typeof(ProgramLiteral))]
-    [JsonDerivedType(typeof(NumericLiteral))]
-    [JsonDerivedType(typeof(StringLiteral))]
+    [JsonDerivedType(typeof(NumericLiteralRule))]
+    [JsonDerivedType(typeof(StringLiteralRule))]
+    [JsonDerivedType(typeof(BaseRuleList))]
+    public record BaseRule(BaseRule Rule, ELiteralType LiteralType);
 
-    [JsonDerivedType(typeof(StatementRule))]
-    [JsonDerivedType(typeof(ExpressionStatementRule))]
-    [JsonDerivedType(typeof(BlockStatementRule))]
+    public record BaseRuleList(BaseRule[] Body, ELiteralType LiteralType) : BaseRule(null, LiteralType);
 
-    public record BaseLiteral(ELiteralType LiteralType);
-
-    public record NumericLiteral(int Value) : BaseLiteral(ELiteralType.NumericLiteral);
-    public record StringLiteral(string Value) : BaseLiteral(ELiteralType.StringLiteral);
-
-    public record StatementRule(ELiteralType LiteralType) : BaseLiteral(LiteralType);
-    public record ExpressionStatementRule(BaseLiteral Statement) : StatementRule(ELiteralType.ExpressionStatement);
-    public record BlockStatementRule(BaseLiteral[] Body) : StatementRule(ELiteralType.BlockStatement);
-
-    public record ProgramLiteral(BaseLiteral[] Body) : BaseLiteral(ELiteralType.Program);
+    public record NumericLiteralRule(int Value) : BaseRule(null, ELiteralType.NumericLiteral);
+    public record StringLiteralRule(string Value) : BaseRule(null, ELiteralType.StringLiteral);
 }
 

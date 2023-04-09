@@ -6,18 +6,19 @@ namespace TestHandwrittenRDPxUTests
 {
 	public static class ParserAssignHelper
 	{
-        public static BaseLiteral? AssignParser(string toParse)
+        public static BaseRule? AssignParser(string toParse)
         {
             return new RecursiveDescentParserForOOP().Parse(toParse);
         }
 
-        public static ProgramLiteral AssignAST_SingleExpression(BaseLiteral? baseLiteral)
+        public static BaseRuleList AssignAST_SingleExpression(BaseRule? baseLiteral)
         {
-            return new ProgramLiteral(
-                       new BaseLiteral[]
+            return new BaseRuleList(
+                       new BaseRule[]
                        {
-                       new ExpressionStatementRule(baseLiteral)
-                       }
+                        new BaseRule(baseLiteral, ELiteralType.ExpressionStatement)
+                       },
+                       ELiteralType.Program
                    );
         }
     }

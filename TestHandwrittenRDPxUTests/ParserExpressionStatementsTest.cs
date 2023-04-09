@@ -11,7 +11,12 @@ namespace TestHandwrittenRDPxUTests
         {
             var parsedResult = ParserAssignHelper.AssignParser(@"456;");
 
-            ParserAssertHelper.AssertAST(parsedResult, new ProgramLiteral(new BaseLiteral[] { new ExpressionStatementRule(new NumericLiteral(456)) }));
+            ParserAssertHelper.AssertAST(parsedResult,
+                new BaseRuleList(
+                    new BaseRule[] {
+                        new BaseRule(new NumericLiteralRule(456), ELiteralType.ExpressionStatement)
+                    }, ELiteralType.Program)
+                );
         }
 
         [Fact]
@@ -19,7 +24,13 @@ namespace TestHandwrittenRDPxUTests
         {
             var parsedResult = ParserAssignHelper.AssignParser(@"456;""hello"";");
 
-            ParserAssertHelper.AssertAST(parsedResult, new ProgramLiteral(new BaseLiteral[] { new ExpressionStatementRule(new NumericLiteral(456)), new ExpressionStatementRule(new StringLiteral("hello")) }));
+            ParserAssertHelper.AssertAST(parsedResult,
+                new BaseRuleList(
+                    new BaseRule[] {
+                        new BaseRule(new NumericLiteralRule(456), ELiteralType.ExpressionStatement),
+                        new BaseRule(new StringLiteralRule("hello"), ELiteralType.ExpressionStatement)
+                    }, ELiteralType.Program)
+                );
         }
 
         [Fact]
@@ -34,7 +45,13 @@ namespace TestHandwrittenRDPxUTests
       ""hello"";
       ");
 
-            ParserAssertHelper.AssertAST(parsedResult, new ProgramLiteral(new BaseLiteral[] { new ExpressionStatementRule(new NumericLiteral(456)), new ExpressionStatementRule(new StringLiteral("hello")) }));
+            ParserAssertHelper.AssertAST(parsedResult,
+                new BaseRuleList(
+                    new BaseRule[] {
+                        new BaseRule(new NumericLiteralRule(456), ELiteralType.ExpressionStatement),
+                        new BaseRule(new StringLiteralRule("hello"), ELiteralType.ExpressionStatement)
+                    }, ELiteralType.Program)
+                );
         }
 
         [Fact]

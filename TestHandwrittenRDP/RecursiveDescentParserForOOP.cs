@@ -8,14 +8,16 @@ namespace TestHandwrittenRDP
 		private string _data;
 		private TokenizerForParser _tokenizer;
 		private BaseToken _lookahead;
+		private ASTFactoryBase _astFactory;
 
-        public RecursiveDescentParserForOOP()
+        public RecursiveDescentParserForOOP(ASTFactoryBase astFactory = null)
 		{
 			this._data = string.Empty;
             this._tokenizer = new TokenizerForParser();
+			this._astFactory = astFactory ?? new ASTFactoryDefault();
 		}
 
-		public BaseLiteral Parse(string data)
+		public BaseRule Parse(string data)
 		{
 			this._data = data;
 			this._tokenizer.Init(data);
@@ -56,9 +58,9 @@ namespace TestHandwrittenRDP
 		///		;
         /// </summary>
         /// <returns>The full Program AST</returns>
-        public BaseLiteral Program()
+        public BaseRule Program()
 		{
-			return new ProgramLiteral(this.StatementList().ToArray());
+			return _astFactory.Program(this.StatementList());
 		}
 
         /// <summary>
@@ -73,9 +75,9 @@ namespace TestHandwrittenRDP
 		///		;
         /// </summary>
         /// <returns></returns>
-        private List<StatementRule> StatementList(ETokenType? stopLookaheadType = null)
+        private List<BaseRule> StatementList(ETokenType? stopLookaheadType = null)
 		{
-			var statementList = new List<StatementRule>();
+			var statementList = new List<BaseRule>();
 
 			while(this._lookahead != null &&
 				(stopLookaheadType != null? this._lookahead.TokenType != stopLookaheadType : true))
@@ -98,7 +100,7 @@ namespace TestHandwrittenRDP
 		///		| EmptyStatement
 		///		;
         /// </summary>
-        private StatementRule Statement()
+        private BaseRule Statement()
 		{
 			switch (this._lookahead.TokenType)
 			{
@@ -113,10 +115,10 @@ namespace TestHandwrittenRDP
             }
 		}
 
-		private StatementRule EmptyStatement()
+		private BaseRule EmptyStatement()
 		{
             this.Eat(ETokenType.SEMICOLON);
-			return new StatementRule(ELiteralType.EmptyStatement);
+			return _astFactory.EmptyStatement();
         }
 
         /// <summary>
@@ -125,15 +127,15 @@ namespace TestHandwrittenRDP
         ///		;
         /// </summary>
         /// <returns></returns>
-        private BlockStatementRule BlockStatement()
+        private BaseRule BlockStatement()
 		{
 			this.Eat(ETokenType.OPEN_CURLY_BRACES);
 
-			var blockBody = (this._lookahead.TokenType == ETokenType.CLOSE_CURLY_BRACES)? new List<StatementRule>() : this.StatementList(ETokenType.CLOSE_CURLY_BRACES);
+			var blockBody = (this._lookahead.TokenType == ETokenType.CLOSE_CURLY_BRACES)? new List<BaseRule>() : this.StatementList(ETokenType.CLOSE_CURLY_BRACES);
 
 			this.Eat(ETokenType.CLOSE_CURLY_BRACES);
 
-			return new BlockStatementRule(blockBody.ToArray());
+			return this._astFactory.BlockStatement(blockBody);
 		}
 
         /// <summary>
@@ -141,7 +143,7 @@ namespace TestHandwrittenRDP
 		///		: Expression ';'
         /// </summary>
         /// <returns></returns>
-        private ExpressionStatementRule ExpressionStatement()
+        private BaseRule ExpressionStatement()
 		{
 			var expression = this.Expression();
 
@@ -149,7 +151,7 @@ namespace TestHandwrittenRDP
 				return null;
 
 			this.Eat(ETokenType.SEMICOLON);
-            return new ExpressionStatementRule(expression);
+			return this._astFactory.ExpressionStatement(expression);
         }
 
 		/// <summary>
@@ -158,7 +160,7 @@ namespace TestHandwrittenRDP
 		///		;
 		/// </summary>
 		/// <returns></returns>
-		private BaseLiteral Expression()
+		private BaseRule Expression()
 		{
 			return this.Literal();
 		}
@@ -169,7 +171,7 @@ namespace TestHandwrittenRDP
         ///		| String Literals
         /// </summary>
         /// <returns></returns>
-        private BaseLiteral Literal()
+        private BaseRule Literal()
 		{
 			switch (this._lookahead.TokenType)
 			{
@@ -187,10 +189,10 @@ namespace TestHandwrittenRDP
 		///		: Number token
 		/// </summary>
 		/// <returns></returns>
-        private NumericLiteral NumericLiteral()
+        private NumericLiteralRule NumericLiteral()
         {
 			var token = this.Eat(ETokenType.NUMBER);
-			return new NumericLiteral(int.Parse(token.Value));
+			return this._astFactory.NumericLiteral(token.Value);
         }
 
         /// <summary>
@@ -198,12 +200,12 @@ namespace TestHandwrittenRDP
         ///		: String token
         /// </summary>
         /// <returns></returns>
-        private StringLiteral StringLiteral()
+        private StringLiteralRule StringLiteral()
         {
             var token = this.Eat(ETokenType.STRING);
 
 			// Slice the string to save without double quotes
-            return new StringLiteral(token.Value[1..^1]);
+            return this._astFactory.StringLiteral(token.Value);
         }
     }
 }

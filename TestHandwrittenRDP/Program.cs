@@ -9,6 +9,7 @@ class Program
         string toParse = @"{456;}";
         var myParser = new RecursiveDescentParserForOOP();
         var parsedResult = myParser.Parse(toParse);
+        var parsedResultSE = SExpressionSerializer.Serialize(parsedResult);
 
         Console.WriteLine(JsonSerializer.Serialize(parsedResult, new JsonSerializerOptions
         {
@@ -18,6 +19,17 @@ class Program
             },
             WriteIndented = true
         }));
+
+        Console.WriteLine("-------------------------------------------------");
+
+        /*Console.WriteLine(JsonSerializer.Serialize(parsedResultSE, new JsonSerializerOptions
+        {
+            Converters =
+            {
+                new JsonStringEnumConverter()
+            },
+            WriteIndented = true
+        }));*/
     }
 }
 

@@ -10,7 +10,7 @@ namespace TestHandwrittenRDPxUTests
         {
             var parsedResult = ParserAssignHelper.AssignParser("    \"hello\"   ;");
 
-            ParserAssertHelper.AssertAST(parsedResult, ParserAssignHelper.AssignAST_SingleExpression(new StringLiteral("hello")));
+            ParserAssertHelper.AssertAST(parsedResult, ParserAssignHelper.AssignAST_SingleExpression(new StringLiteralRule("hello")));
         }
 
         [Fact]
@@ -20,7 +20,7 @@ namespace TestHandwrittenRDPxUTests
       456;
       ");
 
-            ParserAssertHelper.AssertAST(parsedResult, ParserAssignHelper.AssignAST_SingleExpression(new NumericLiteral(456)));
+            ParserAssertHelper.AssertAST(parsedResult, ParserAssignHelper.AssignAST_SingleExpression(new NumericLiteralRule(456)));
         }
 
         [Fact]
@@ -31,7 +31,7 @@ namespace TestHandwrittenRDPxUTests
       456;
       ");
 
-            ParserAssertHelper.AssertAST(parsedResult, ParserAssignHelper.AssignAST_SingleExpression(new NumericLiteral(456)));
+            ParserAssertHelper.AssertAST(parsedResult, ParserAssignHelper.AssignAST_SingleExpression(new NumericLiteralRule(456)));
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace TestHandwrittenRDPxUTests
       456;
       ");
 
-            ParserAssertHelper.AssertAST(parsedResult, ParserAssignHelper.AssignAST_SingleExpression(new NumericLiteral(456)));
+            ParserAssertHelper.AssertAST(parsedResult, ParserAssignHelper.AssignAST_SingleExpression(new NumericLiteralRule(456)));
         }
     }
 }
