@@ -4,8 +4,8 @@ using System.Text.RegularExpressions;
 
 namespace TestHandwrittenRDP
 {
-	public class MyTokenizer
-	{
+	public class TokenizerForParser
+    {
         private string _data;
         private int _cursor;
 

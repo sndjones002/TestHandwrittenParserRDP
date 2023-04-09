@@ -3,16 +3,16 @@ using System.Data;
 
 namespace TestHandwrittenRDP
 {
-	public class MyParser
-	{
+	public class RecursiveDescentParserForOOP
+    {
 		private string _data;
-		private MyTokenizer _tokenizer;
+		private TokenizerForParser _tokenizer;
 		private BaseToken _lookahead;
 
-        public MyParser()
+        public RecursiveDescentParserForOOP()
 		{
 			this._data = string.Empty;
-            this._tokenizer = new MyTokenizer();
+            this._tokenizer = new TokenizerForParser();
 		}
 
 		public BaseLiteral Parse(string data)
