@@ -18,13 +18,17 @@ namespace TestHandwrittenRDP
 
         VariableStatement,
 		VariableDeclaration,
+
+		IfStatement,
     }
 
     public enum ETokenType
 	{
 		KEYWORD_LET,
+		KEYWORD_IF,
+        KEYWORD_ELSE,
 
-		NUMBER,
+        NUMBER,
         STRING,
 
         #region Skipped Tokens
@@ -56,6 +60,7 @@ namespace TestHandwrittenRDP
 
         #endregion Markers
 
+		RELATIONAL_OPERATOR,
         ADDITIVE_OPERATOR,
 		MULTIPLICATIVE_OPERATOR,
 

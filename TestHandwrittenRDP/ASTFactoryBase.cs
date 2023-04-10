@@ -49,6 +49,11 @@ namespace TestHandwrittenRDP
         {
             return new VariableDeclarationRule(id, init);
         }
+
+        public BaseRule IfStatement(BaseRule test, BaseRule consequent, BaseRule alternate)
+        {
+            return new IfStatementRule(test, consequent, alternate);
+        }
     }
 }
 

@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace TestHandwrittenRDP
 {
+    [JsonDerivedType(typeof(IfStatementRule))]
     [JsonDerivedType(typeof(VariableStatementRule))]
     [JsonDerivedType(typeof(VariableDeclarationRule))]
     [JsonDerivedType(typeof(AssignmentExpressionRule))]
@@ -34,5 +35,7 @@ namespace TestHandwrittenRDP
 
     public record VariableStatementRule(List<BaseRule> Declarations) : BaseRule(ELiteralType.VariableStatement);
     public record VariableDeclarationRule(BaseRule Id, BaseRule Init) : BaseRule(ELiteralType.VariableDeclaration);
+
+    public record IfStatementRule(BaseRule Test, BaseRule Consequent, BaseRule Alternate) : BaseRule(ELiteralType.IfStatement);
 }
 

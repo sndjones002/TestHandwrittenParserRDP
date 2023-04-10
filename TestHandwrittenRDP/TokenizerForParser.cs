@@ -37,6 +37,8 @@ namespace TestHandwrittenRDP
                 #region Literals
 
                 (@"\G\blet\b", ETokenType.KEYWORD_LET),
+                (@"\G\bif\b", ETokenType.KEYWORD_IF),
+                (@"\G\belse\b", ETokenType.KEYWORD_ELSE),
                 (@"\G\d+", ETokenType.NUMBER),
                 (@"\G""[^""]*""", ETokenType.STRING),
                 (@"\G\w+", ETokenType.IDENTIFIER),
@@ -54,6 +56,7 @@ namespace TestHandwrittenRDP
 
                 (@"\G[+-]", ETokenType.ADDITIVE_OPERATOR),
                 (@"\G[*/]", ETokenType.MULTIPLICATIVE_OPERATOR),
+                (@"\G[><]=?", ETokenType.RELATIONAL_OPERATOR),
 
                 #endregion Operations, Mathematical
             };
@@ -144,6 +147,12 @@ namespace TestHandwrittenRDP
                         return new BaseToken(ETokenType.COMPLEX_ASSIGNMENT, matched.Value);
                     case ETokenType.KEYWORD_LET:
                         return new KeywordToken(ETokenType.KEYWORD_LET, matched.Value);
+                    case ETokenType.KEYWORD_IF:
+                        return new KeywordToken(ETokenType.KEYWORD_IF, matched.Value);
+                    case ETokenType.KEYWORD_ELSE:
+                        return new KeywordToken(ETokenType.KEYWORD_ELSE, matched.Value);
+                    case ETokenType.RELATIONAL_OPERATOR:
+                        return new BaseToken(ETokenType.RELATIONAL_OPERATOR, matched.Value);
                     default:
 						return null;
                 }

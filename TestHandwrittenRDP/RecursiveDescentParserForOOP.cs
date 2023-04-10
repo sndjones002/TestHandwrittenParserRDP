@@ -104,6 +104,7 @@ namespace TestHandwrittenRDP
 		///		| BlockStatement
 		///		| EmptyStatement
 		///		| VariableStatement
+		///		| IfStatement
 		///		;
         /// </summary>
         private BaseRule Statement()
@@ -118,11 +119,49 @@ namespace TestHandwrittenRDP
 					return this.BlockStatement();
                 case ETokenType.KEYWORD_LET:
                     return this.VariableStatement();
+                case ETokenType.KEYWORD_IF:
+                    return this.IfStatement();
                 default:
                     return this.ExpressionStatement();
             }
 		}
 
+        /// <summary>
+		/// The problem with else clause arises when there are nested if statements and
+		/// only one else at the end. The question is to which if it bounds to?
+		/// In Java, C, C#, you bind the else to the closest if.
+		/// This means you will shift the else token.
+		///
+		/// However in manual parsing there is no issue, it is an issue with automatically
+		/// generated parsers.
+		/// 
+        /// IfStatement
+		///		: 'if' '(' Expression ')' Statement
+		///		| 'if' '(' Expression ')' Statement 'else' Statement
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule IfStatement()
+		{
+			this.Eat(ETokenType.KEYWORD_IF);
+			this.Eat(ETokenType.LEFT_PARENTHESIS);
+
+			var test = this.Expression();
+
+			this.Eat(ETokenType.RIGHT_PARENTHESIS);
+
+			var consequent = this.Statement();
+            BaseRule alternate = null;
+
+			if(this._lookahead != null &&
+				this._lookahead.TokenType == ETokenType.KEYWORD_ELSE)
+			{
+				this.Eat(ETokenType.KEYWORD_ELSE);
+                alternate = this.Statement();
+            }
+
+			return this._astFactory.IfStatement(test, consequent, alternate);
+		}
 
         /// <summary>
         /// VariableStatement
@@ -157,7 +196,7 @@ namespace TestHandwrittenRDP
 			do
 			{
 				declarations.Add(this.VariableDeclaration());
-            } while (this._lookahead.TokenType == ETokenType.COMMA &&
+            } while (this._lookahead != null && this._lookahead.TokenType == ETokenType.COMMA &&
 				this.Eat(ETokenType.COMMA) != null);
 
 			return declarations;
@@ -173,7 +212,7 @@ namespace TestHandwrittenRDP
         private BaseRule VariableDeclaration()
 		{
 			var id = this.Identifier();
-			var init = (this._lookahead.TokenType != ETokenType.SEMICOLON &&
+			var init = (this._lookahead != null && this._lookahead.TokenType != ETokenType.SEMICOLON &&
 						this._lookahead.TokenType != ETokenType.COMMA) ?
 						this.VariableInitializer() : null;
 
@@ -215,7 +254,7 @@ namespace TestHandwrittenRDP
 			this.Eat(ETokenType.OPEN_CURLY_BRACES);
 
 			// This is the optional statement list
-			var blockBody = (this._lookahead.TokenType == ETokenType.CLOSE_CURLY_BRACES)? new List<BaseRule>() : this.StatementList(ETokenType.CLOSE_CURLY_BRACES);
+			var blockBody = (this._lookahead != null && this._lookahead.TokenType == ETokenType.CLOSE_CURLY_BRACES)? new List<BaseRule>() : this.StatementList(ETokenType.CLOSE_CURLY_BRACES);
 
 			this.Eat(ETokenType.CLOSE_CURLY_BRACES);
 
@@ -255,14 +294,14 @@ namespace TestHandwrittenRDP
 		/// equivalent multiple rules as LL(1) can handle Right recursion.
 		/// 
         /// AssignmentExpression
-		///		: AdditiveExpression
+		///		: RelationalExpression
 		///		| LeftHandSideExpression AssignmentOperator AssignmentExpression
 		///		;
         /// </summary>
         /// <returns></returns>
         private BaseRule AssignmentExpression()
 		{
-			var left = this.AdditiveExpression();
+			var left = this.RelationalExpression();
 
 			if (this._lookahead == null || !TokenizerForParser.IsAssignmentToken(this._lookahead))
 				return left;
@@ -273,6 +312,20 @@ namespace TestHandwrittenRDP
 				this.AssignmentExpression()
 				);
 		}
+
+        /// <summary>
+		/// RELATIONAL_OPERATORS <, >=, <, <=
+		/// 
+        /// RelationalExpression
+		///		: AdditiveExpression
+		///		| AdditiveExpression RELATIONAL_OPERATORS RelationalExpression
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule RelationalExpression()
+		{
+            return this.BinaryExpression(ETokenType.RELATIONAL_OPERATOR, this.AdditiveExpression);
+        }
 
         /// <summary>
         /// Consume assigment operator token

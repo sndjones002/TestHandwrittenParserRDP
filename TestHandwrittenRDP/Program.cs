@@ -6,7 +6,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        string toParse = @"5 + 3 - 4;";
+        string toParse = @"x > 10;";
         var myParser = new RecursiveDescentParserForOOP();
         var parsedResult = myParser.Parse(toParse);
 
