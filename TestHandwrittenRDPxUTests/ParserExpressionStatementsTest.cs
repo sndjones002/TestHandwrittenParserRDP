@@ -4,39 +4,28 @@ using TestHandwrittenRDP;
 
 namespace TestHandwrittenRDPxUTests
 {
-	public class ParserExpressionStatementsTest
-	{
+	public partial class ParserExpressionStatementsTest : ParserUnitTestModule
+    {
         [Fact]
         public void SimpleStatementsWithSemicolon()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"456;");
+            var parsedResult = Parser(@"456;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(new NumericLiteralRule(456))
-                    })
-                );
+            AssertAST(parsedResult, Program( ExprStmt(Int(456)) ) );
         }
 
         [Fact]
         public void CompoundStatementsWithSemicolon()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"456;""hello"";");
+            var parsedResult = Parser(@"456;""hello"";");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(new NumericLiteralRule(456)),
-                        new ExpressionStatementRule(new StringLiteralRule("hello"))
-                    })
-                );
+            AssertAST(parsedResult, Program(ExprStmt(Int(456)), ExprStmt(Str("hello"))));
         }
 
         [Fact]
         public void CompoundStatementsWithComments()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"
+            var parsedResult = Parser(@"
       /* This is a number
        * with Multiline comment
       */
@@ -45,35 +34,24 @@ namespace TestHandwrittenRDPxUTests
       ""hello"";
       ");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(new NumericLiteralRule(456)),
-                        new ExpressionStatementRule(new StringLiteralRule("hello"))
-                    })
-                );
+            AssertAST(parsedResult, Program(ExprStmt(Int(456)), ExprStmt(Str("hello"))));
         }
 
         [Fact]
         public void EmptyStatement()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@";");
+            var parsedResult = Parser(@";");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new EmptyStatementRule()
-                    })
-                );
+            AssertAST(parsedResult, Program(Empty()) );
         }
 
         [Fact]
         public void SimpleStatementsWithoutSemicolonException()
         {
-            var parsedResult = () => ParserAssignHelper.AssignParser(@"456");
-
-            var exception = Assert.Throws<SyntaxErrorException>(parsedResult);
-            Assert.Equal($"Unexpected end of input, expected: '{ETokenType.SEMICOLON}'", exception.Message);
+            AssertErr<SyntaxErrorException>(
+                () => Parser(@"456")!,
+                $"Unexpected end of input, expected: '{ETokenType.SEMICOLON}'"
+                );
         }
     }
 }

@@ -1,135 +1,107 @@
 ﻿using System;
+using System.Data;
 using TestHandwrittenRDP;
 
 namespace TestHandwrittenRDPxUTests
 {
-	public class ParserVariableStatementTest
-	{
+	public class ParserVariableStatementTest : ParserUnitTestModule
+    {
         [Fact]
-        public void Simple()
+        public void one_vardecl()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"let y;");
+            var parsedResult = Parser(@"let y;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new VariableStatementRule(
-                            new List<BaseRule>
-                            {
-                                new VariableDeclarationRule(
-                                    new IdentifierRule("y"),
-                                    null)
-                            })
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    VarStmt( VarDecl(Id("y"), null)) )
                 );
         }
 
         [Fact]
-        public void Multiple()
+        public void multiple_vardecl()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"let y, b;");
+            var parsedResult = Parser(@"let y, b;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new VariableStatementRule(
-                            new List<BaseRule>
-                            {
-                                new VariableDeclarationRule(
-                                    new IdentifierRule("y"),
-                                    null),
-                                new VariableDeclarationRule(
-                                    new IdentifierRule("b"),
-                                    null)
-                            })
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    VarStmt(
+                        VarDecl(Id("y"), null),
+                        VarDecl(Id("b"), null)
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void SimpleWithAssignment()
+        public void one_vardecl_init()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"let y = 23;");
+            var parsedResult = Parser(@"let y = 23;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new VariableStatementRule(
-                            new List<BaseRule>
-                            {
-                                new VariableDeclarationRule(
-                                    new IdentifierRule("y"),
-                                    new NumericLiteralRule(23))
-                            })
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    VarStmt(VarDecl(Id("y"), Int(23))) )
                 );
         }
 
         [Fact]
-        public void MultipleWithSingleAssignment()
+        public void vardecl_vardecl_init()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"let x, y = 9;");
+            var parsedResult = Parser(@"let x, y = 9;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new VariableStatementRule(
-                            new List<BaseRule>
-                            {
-                                new VariableDeclarationRule(
-                                    new IdentifierRule("x"),
-                                    null),
-                                new VariableDeclarationRule(
-                                    new IdentifierRule("y"),
-                                    new NumericLiteralRule(9))
-                            })
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    VarStmt(
+                        VarDecl(Id("x"), null),
+                        VarDecl(Id("y"), Int(9))
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void MultipleWithAssignmentRecursive()
+        public void vardecl_var_assign_int()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"let x = y = 9;");
+            var parsedResult = Parser(@"let x = y = 9;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new VariableStatementRule(
-                            new List<BaseRule>
-                            {
-                                new VariableDeclarationRule(
-                                    new IdentifierRule("x"),
-                                    new AssignmentExpressionRule(
-                                        new BaseToken(ETokenType.SIMPLE_ASSIGNMENT, "="),
-                                        new IdentifierRule("y"),
-                                        new NumericLiteralRule(9)
-                                    )
-                                ),
-                            })
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    VarStmt(
+                        VarDecl(Id("x"), Assign(ASSIGN, Id("y"), Int(9)))
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void MultipleAssignment()
+        public void vardecl_str_vardecl_int()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"let x = 2, y = 9;");
+            var parsedResult = Parser(@"let x = ""hello"", y = 9;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new VariableStatementRule(
-                            new List<BaseRule>
-                            {
-                                new VariableDeclarationRule(
-                                    new IdentifierRule("x"),
-                                    new NumericLiteralRule(2)),
-                                new VariableDeclarationRule(
-                                    new IdentifierRule("y"),
-                                    new NumericLiteralRule(9))
-                            })
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    VarStmt(
+                        VarDecl(Id("x"), Str("hello")),
+                        VarDecl(Id("y"), Int(9))
+                        )
+                    )
+                );
+        }
+
+        [Fact]
+        public void ERR_vardecl_str_vardecl_int()
+        {
+            AssertErr<SyntaxErrorException>(
+                () => Parser(@"let x = ""hello"" y = 9;")!,
+                $"Unexpected token: 'y', expected: '{ETokenType.SEMICOLON}'"
+                );
+        }
+
+        [Fact]
+        public void ERR_vardecl_vardecl()
+        {
+            AssertErr<SyntaxErrorException>(
+                () => Parser(@"let x y;")!,
+                $"Unexpected token: 'y', expected: '{ETokenType.SIMPLE_ASSIGNMENT}'"
                 );
         }
     }

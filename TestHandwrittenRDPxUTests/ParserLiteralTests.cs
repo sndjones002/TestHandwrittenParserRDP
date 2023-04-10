@@ -6,34 +6,29 @@ using TestHandwrittenRDP;
 
 namespace TestHandwrittenRDPxUTests;
 
-public class ParserLiteralTests
+public class ParserLiteralTests : ParserUnitTestModule
 {
     [Fact]
     public void NumericLiteral()
     {
-        var parsedResult = ParserAssignHelper.AssignParser("4567;");
+        var parsedResult = Parser("4567;");
 
-        ParserAssertHelper.AssertAST(parsedResult, ParserAssignHelper.AssignAST_SingleExpression(new NumericLiteralRule(4567)));
+        AssertAST(parsedResult, Program(ExprStmt(Int(4567))) );
     }
 
     [Fact]
     public void StringLiteral()
     {
-        var parsedResult = ParserAssignHelper.AssignParser("\"hello\";");
+        var parsedResult = Parser("\"hello\";");
 
-        ParserAssertHelper.AssertAST(parsedResult, ParserAssignHelper.AssignAST_SingleExpression(new StringLiteralRule("hello")));
+        AssertAST(parsedResult, Program(ExprStmt(Str("hello"))) );
     }
 
     [Fact]
     public void WithParenthesisSimplest()
     {
-        var parsedResult = ParserAssignHelper.AssignParser(@"((5));");
+        var parsedResult = Parser(@"((5));");
 
-        ParserAssertHelper.AssertAST(parsedResult,
-            new ProgramRule(
-                new List<BaseRule> {
-                        new ExpressionStatementRule(new NumericLiteralRule(5))
-                })
-            );
+        AssertAST(parsedResult, Program(ExprStmt(Int(5))) );
     }
 }

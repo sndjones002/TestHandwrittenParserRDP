@@ -3,12 +3,12 @@ using TestHandwrittenRDP;
 
 namespace TestHandwrittenRDPxUTests
 {
-	public class ParserConditionalIfStatementTest
-	{
+	public class ParserConditionalIfStatementTest : ParserUnitTestModule
+    {
 		[Fact]
 		public void Simple()
 		{
-            var parsedResult = ParserAssignHelper.AssignParser(@"
+            var parsedResult = Parser(@"
 		if(x) {
 		  x = 1;
 		}
@@ -16,193 +16,122 @@ namespace TestHandwrittenRDPxUTests
 		  x = 2;
 		}
 ");
-			ParserAssertHelper.AssertAST(parsedResult,
-				new ProgramRule(
-					new List<BaseRule> {
-						new IfStatementRule(
-							new IdentifierRule("x"),
-							new BlockStatementRule(
-								new List<BaseRule>
-								{
-									new ExpressionStatementRule(
-										new AssignmentExpressionRule(
-											new BaseToken(ETokenType.SIMPLE_ASSIGNMENT, "="),
-											new IdentifierRule("x"),
-											new NumericLiteralRule(1)
-											)
-										)
-								}),
-                            new BlockStatementRule(
-                                new List<BaseRule>
-                                {
-                                    new ExpressionStatementRule(
-                                        new AssignmentExpressionRule(
-                                            new BaseToken(ETokenType.SIMPLE_ASSIGNMENT, "="),
-                                            new IdentifierRule("x"),
-                                            new NumericLiteralRule(2)
-                                            )
-                                        )
-                                })
-                            )
-					})
-				); ;
+			AssertAST(parsedResult,
+				Program(
+                    If(
+                        Id("x"),
+                        Block(ExprStmt(Assign(ASSIGN, Id("x"), Int(1)))),
+                        Block(ExprStmt(Assign(ASSIGN, Id("x"), Int(2))))
+                        )
+                    )
+                );
         }
 
         [Fact]
         public void SimpleOnlyIf()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"
+            var parsedResult = Parser(@"
 		if(x) {
 		  x = 1;
 		}
 ");
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new IfStatementRule(
-                            new IdentifierRule("x"),
-                            new BlockStatementRule(
-                                new List<BaseRule>
-                                {
-                                    new ExpressionStatementRule(
-                                        new AssignmentExpressionRule(
-                                            new BaseToken(ETokenType.SIMPLE_ASSIGNMENT, "="),
-                                            new IdentifierRule("x"),
-                                            new NumericLiteralRule(1)
-                                            )
-                                        )
-                                }),
-                            null
-                            )
-                    })
-                ); ;
+            AssertAST(parsedResult,
+                Program(
+                    If(
+                        Id("x"),
+                        Block( ExprStmt( Assign(ASSIGN, Id("x"), Int(1)) ) ),
+                        null
+                        )
+                    )
+                );
         }
 
         [Fact]
         public void SimpleOnlyIfNoBraces()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"
+            var parsedResult = Parser(@"
 		if(x)  x = 1;
 ");
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new IfStatementRule(
-                            new IdentifierRule("x"),
-                            new ExpressionStatementRule(
-                                new AssignmentExpressionRule(
-                                    new BaseToken(ETokenType.SIMPLE_ASSIGNMENT, "="),
-                                    new IdentifierRule("x"),
-                                    new NumericLiteralRule(1)
-                                    )
-                                ),
-                            null
-                            )
-                    })
-                ); ;
+
+            AssertAST(parsedResult,
+                Program(
+                    If(
+                        Id("x"),
+                        ExprStmt(Assign(ASSIGN, Id("x"), Int(1))),
+                        null
+                        )
+                    )
+                );
         }
 
         [Fact]
         public void ComplexNestedIf()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"
+            var parsedResult = Parser(@"
 		if(x)  if(y) {} else { y + 1; }
 ");
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new IfStatementRule(
-                            new IdentifierRule("x"),
-                            new IfStatementRule(
-                                new IdentifierRule("y"),
-                                new BlockStatementRule(new List<BaseRule>()),
-                                new BlockStatementRule(
-                                    new List<BaseRule>
-                                    {
-                                        new ExpressionStatementRule(
-                                            new BinaryExpressionRule(
-                                                new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                                new IdentifierRule("y"),
-                                                new NumericLiteralRule(1)
-                                            ))
-                                    })),
-                            null
-                            )
-                    })
-                ); ;
+
+            AssertAST(parsedResult,
+                Program(
+                    If(
+                        Id("x"),
+                        If(
+                            Id("y"),
+                            Block(),
+                            Block( ExprStmt( BinExpr(PLUS, Id("y"), Int(1)) ) )
+                            ),
+                        null
+                        )
+                    )
+                );
         }
 
         [Fact]
         public void ComplexNestedIfWithExpression()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"
+            var parsedResult = Parser(@"
 		if(x > 10)  if(y) {} else { y + 1; }
 ");
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new IfStatementRule(
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.RELATIONAL_OPERATOR, ">"),
-                                    new IdentifierRule("x"),
-                                    new NumericLiteralRule(10)
-                                ),
-                            new IfStatementRule(
-                                new IdentifierRule("y"),
-                                new BlockStatementRule(new List<BaseRule>()),
-                                new BlockStatementRule(
-                                    new List<BaseRule>
-                                    {
-                                        new ExpressionStatementRule(
-                                            new BinaryExpressionRule(
-                                                new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                                new IdentifierRule("y"),
-                                                new NumericLiteralRule(1)
-                                            ))
-                                    })),
-                            null
-                            )
-                    })
-                ); ;
+
+            AssertAST(parsedResult,
+                Program(
+                    If(
+                        BinExpr(GREATER, Id("x"), Int(10)),
+                        If(
+                            Id("y"),
+                            Block(),
+                            Block(ExprStmt(BinExpr(PLUS, Id("y"), Int(1))))
+                            ),
+                        null
+                        )
+                    )
+                );
         }
 
         [Fact]
         public void ComplexNestedIfWithExpressionBooleanEquality()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"
+            var parsedResult = Parser(@"
 		if(x > 10 == y)  if(y) {} else { y + 1; }
 ");
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new IfStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.EQUALITY_OPERATOR, "=="),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.RELATIONAL_OPERATOR, ">"),
-                                    new IdentifierRule("x"),
-                                    new NumericLiteralRule(10)
-                                    ),
-                                new IdentifierRule("y")
-                                ),
-                            new IfStatementRule(
-                                new IdentifierRule("y"),
-                                new BlockStatementRule(new List<BaseRule>()),
-                                new BlockStatementRule(
-                                    new List<BaseRule>
-                                    {
-                                        new ExpressionStatementRule(
-                                            new BinaryExpressionRule(
-                                                new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                                new IdentifierRule("y"),
-                                                new NumericLiteralRule(1)
-                                            ))
-                                    })
-                                ),
-                            null
-                            )
-                    })
-                ); ;
+
+            AssertAST(parsedResult,
+                Program(
+                    If(
+                        BinExpr(
+                            EQUAL_TO,
+                            BinExpr(GREATER, Id("x"), Int(10)),
+                            Id("y")
+                            ),
+                        If(
+                            Id("y"),
+                            Block(),
+                            Block(ExprStmt(BinExpr(PLUS, Id("y"), Int(1))))
+                            ),
+                        null
+                        )
+                    )
+                );
         }
     }
 }

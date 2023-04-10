@@ -3,84 +3,57 @@ using TestHandwrittenRDP;
 
 namespace TestHandwrittenRDPxUTests
 {
-	public class ParserLogicalExpressionTest
-	{
+	public class ParserLogicalExpressionTest : ParserUnitTestModule
+    {
 		[Fact]
-		public void Simple()
+		public void var_land_int()
 		{
-            var parsedResult = ParserAssignHelper.AssignParser(@"x && 10;");
+            var parsedResult = Parser(@"x && 10;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new LogicalExpressionRule(
-                                new BaseToken(ETokenType.LOGICAL_AND, "&&"),
-                                new IdentifierRule("x"),
-                                new NumericLiteralRule(10)
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(Logical(LAND, Id("x"), Int(10)))
+                    )
                 );
         }
 
         [Fact]
-        public void LogicalANDWithBinary()
+        public void var_greater_int_land_var_plus_int()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"x > 8 && y + 10;");
+            var parsedResult = Parser(@"x > 8 && y + 10;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new LogicalExpressionRule(
-                                new BaseToken(ETokenType.LOGICAL_AND, "&&"),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.RELATIONAL_OPERATOR, ">"),
-                                    new IdentifierRule("x"),
-                                    new NumericLiteralRule(8)
-                                    ),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                    new IdentifierRule("y"),
-                                    new NumericLiteralRule(10)
-                                    )
-                            ))
-                    })
-                );
-        }
-
-        [Fact]
-        public void LogicalORWithANDWithBinary()
-        {
-            var parsedResult = ParserAssignHelper.AssignParser(@"x > 8 && y + 10 || z * 2;");
-
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new LogicalExpressionRule(
-                                new BaseToken(ETokenType.LOGICAL_OR, "||"),
-                                new LogicalExpressionRule(
-                                    new BaseToken(ETokenType.LOGICAL_AND, "&&"),
-                                    new BinaryExpressionRule(
-                                        new BaseToken(ETokenType.RELATIONAL_OPERATOR, ">"),
-                                        new IdentifierRule("x"),
-                                        new NumericLiteralRule(8)
-                                        ),
-                                    new BinaryExpressionRule(
-                                        new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                        new IdentifierRule("y"),
-                                        new NumericLiteralRule(10)
-                                        )
-                                ),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.MULTIPLICATIVE_OPERATOR, "*"),
-                                    new IdentifierRule("z"),
-                                    new NumericLiteralRule(2)
-                                    )
-                                )
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        Logical(
+                            LAND,
+                            BinExpr(GREATER, Id("x"), Int(8)),
+                            BinExpr(PLUS, Id("y"), Int(10))
                             )
-                    })
+                        )
+                    )
+                );
+        }
+
+        [Fact]
+        public void int_greater_int_land_var_plus_int_lor_var_into_int()
+        {
+            var parsedResult = Parser(@"x > 8 && y + 10 || z * 2;");
+
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        Logical(
+                            LOR,
+                            Logical(
+                                LAND,
+                                BinExpr(GREATER, Id("x"), Int(8)),
+                                BinExpr(PLUS, Id("y"), Int(10))
+                                ),
+                            BinExpr(INTO, Id("z"), Int(2))
+                            )
+                        )
+                    )
                 );
         }
     }

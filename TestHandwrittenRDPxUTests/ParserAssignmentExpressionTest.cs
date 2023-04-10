@@ -1,102 +1,126 @@
 ﻿using System;
 using System.Data;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
 using TestHandwrittenRDP;
 
 namespace TestHandwrittenRDPxUTests
 {
-	public class ParserAssignmentExpressionTest
-	{
+	public class ParserAssignmentExpressionTest : ParserUnitTestModule
+    {
         [Fact]
-        public void Simplest()
+        public void var_eq_int()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"myNumber = 2;");
+            var parsedResult = Parser(@"x = 2;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new AssignmentExpressionRule(
-                                new BaseToken(ETokenType.SIMPLE_ASSIGNMENT, "="),
-                                new IdentifierRule("myNumber"),
-                                new NumericLiteralRule(2)
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        Assign(ASSIGN, Id("x"), Int(2))
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void SimplestChained()
+        public void var_minuseq_int()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"myNumber = myobject = 42;");
+            var parsedResult = Parser(@"x -= 2;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new AssignmentExpressionRule(
-                                new BaseToken(ETokenType.SIMPLE_ASSIGNMENT, "="),
-                                new IdentifierRule("myNumber"),
-                                new AssignmentExpressionRule(
-                                    new BaseToken(ETokenType.SIMPLE_ASSIGNMENT, "="),
-                                    new IdentifierRule("myobject"),
-                                    new NumericLiteralRule(42)
-                                    )
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        Assign(MINUS_EQUAL, Id("x"), Int(2))
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void SimplestWithExpression()
+        public void var_eq_var_eq_int()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"x = y + 2;");
+            var parsedResult = Parser(@"x = y = 42;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new AssignmentExpressionRule(
-                                new BaseToken(ETokenType.SIMPLE_ASSIGNMENT, "="),
-                                new IdentifierRule("x"),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                    new IdentifierRule("y"),
-                                    new NumericLiteralRule(2)
-                                )
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        Assign(ASSIGN, Id("x"), Assign(ASSIGN, Id("y"), Int(42)))
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void MultiplicativeAssignmentWithExpression()
+        public void var_eq_var_plus_int()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"x /= 2 - y;");
+            var parsedResult = Parser(@"x = y + 2;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new AssignmentExpressionRule(
-                                new BaseToken(ETokenType.COMPLEX_ASSIGNMENT, "/="),
-                                new IdentifierRule("x"),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.ADDITIVE_OPERATOR, "-"),
-                                    new NumericLiteralRule(2),
-                                    new IdentifierRule("y")
-                                )
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        Assign(ASSIGN, Id("x"), BinExpr(PLUS, Id("y"), Int(2)))
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void InvalidLeftHandSide()
+        public void var_eq_var_lor_int()
         {
-            var parsedResult = () => ParserAssignHelper.AssignParser(@"45 = 45;");
+            var parsedResult = Parser(@"x = y || 2;");
 
-            var exception = Assert.Throws<SyntaxErrorException>(parsedResult);
-            Assert.Equal("Invalid left-hand side in assignment expression", exception.Message);
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        Assign(ASSIGN, Id("x"), Logical(LOR, Id("y"), Int(2)))
+                        )
+                    )
+                );
+        }
+
+        [Fact]
+        public void var_eq_var_land_var()
+        {
+            var parsedResult = Parser(@"x = y && z;");
+
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        Assign(ASSIGN, Id("x"), Logical(LAND, Id("y"), Id("z")))
+                        )
+                    )
+                );
+        }
+
+        [Fact]
+        public void var_diveq_int_minus_var()
+        {
+            var parsedResult = Parser(@"x /= 2 - y;");
+
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        Assign(DIV_EQUAL, Id("x"), BinExpr(MINUS, Int(2), Id("y")))
+                        )
+                    )
+                );
+        }
+
+        [Fact]
+        public void ERR_int_eq_int()
+        {
+            AssertErr<SyntaxErrorException>(
+                () => Parser(@"45 = 45;")!,
+                "Invalid left-hand side in assignment expression"
+                );
+        }
+
+        [Fact]
+        public void ERR_var_plus_int_eq_int()
+        {
+            AssertErr<SyntaxErrorException>(
+                () => Parser(@"x + 5 = 45;")!,
+                "Invalid left-hand side in assignment expression"
+                );
         }
     }
 }

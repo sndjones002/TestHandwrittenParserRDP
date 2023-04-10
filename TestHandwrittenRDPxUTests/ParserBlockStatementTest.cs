@@ -3,59 +3,39 @@ using TestHandwrittenRDP;
 
 namespace TestHandwrittenRDPxUTests
 {
-	public class ParserBlockStatementTest
+	public class ParserBlockStatementTest : ParserUnitTestModule
 	{
         [Fact]
         public void SimpleBlockStatement()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"{}");
+            var parsedResult = Parser(@"{}");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new BlockStatementRule(new List<BaseRule>())
-                    })
-                );
+            AssertAST(parsedResult, Program(Block()));
         }
 
         [Fact]
         public void EmptyStatementInBlock()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"{;}");
+            var parsedResult = Parser(@"{;}");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new BlockStatementRule(
-                            new List<BaseRule> {
-                                new EmptyStatementRule()
-                            })
-                    })
-                   );
+            AssertAST(parsedResult, Program(Block(Empty())) );
         }
 
         [Fact]
         public void SimpleBlockStatementWithLiterals()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"{456;
+            var parsedResult = Parser(@"{456;
 ""hello"";}");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new BlockStatementRule(new List<BaseRule>
-                        {
-                            new ExpressionStatementRule(new NumericLiteralRule(456)),
-                            new ExpressionStatementRule(new StringLiteralRule("hello"))
-                        })
-                    })
+            AssertAST(parsedResult,
+                Program(Block(ExprStmt(Int(456)), ExprStmt(Str("hello"))))
                 );
         }
 
         [Fact]
         public void SimpleBlockStatementWithNestedBlocks()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"
+            var parsedResult = Parser(@"
 {
     456;
     {
@@ -63,18 +43,13 @@ namespace TestHandwrittenRDPxUTests
     }
 }");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new BlockStatementRule(new List<BaseRule>
-                        {
-                            new ExpressionStatementRule(new NumericLiteralRule(456)),
-                            new BlockStatementRule(new List<BaseRule>
-                            {
-                                new ExpressionStatementRule(new StringLiteralRule("hello"))
-                            })
-                        })
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    Block(
+                        ExprStmt(Int(456)),
+                        Block(ExprStmt(Str("hello")))
+                        )
+                    )
                 );
         }
     }

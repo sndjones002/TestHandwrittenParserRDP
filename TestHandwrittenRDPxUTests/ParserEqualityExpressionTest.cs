@@ -3,71 +3,59 @@ using TestHandwrittenRDP;
 
 namespace TestHandwrittenRDPxUTests
 {
-	public class ParserEqualityExpressionTest
-	{
+	public class ParserEqualityExpressionTest : ParserUnitTestModule
+    {
         [Fact]
         public void EqualityWithBooleanCheck()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"x > 0 == true;");
+            var parsedResult = Parser(@"x > 0 == true;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.EQUALITY_OPERATOR, "=="),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.RELATIONAL_OPERATOR, ">"),
-                                    new IdentifierRule("x"),
-                                    new NumericLiteralRule(0)
-                                    ),
-                                new BooleanLiteralRule(true)
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        BinExpr(
+                            EQUAL_TO,
+                            BinExpr(GREATER, Id("x"), Int(0)),
+                            Bool(true)
+                            )
+                        )
+                    )
                 );
         }
 
         [Fact]
         public void EqualityWithBooleanCheckRight()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"false == x > 0;");
+            var parsedResult = Parser(@"false == x > 0;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.EQUALITY_OPERATOR, "=="),
-                                new BooleanLiteralRule(false),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.RELATIONAL_OPERATOR, ">"),
-                                    new IdentifierRule("x"),
-                                    new NumericLiteralRule(0)
-                                    )
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        BinExpr(
+                            EQUAL_TO,
+                            Bool(false),
+                            BinExpr(GREATER, Id("x"), Int(0))
+                            )
+                        )
+                    )
                 );
         }
 
         [Fact]
         public void EqualityWithAdditiveCheckRight()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"false == x + y;");
+            var parsedResult = Parser(@"false != x + y;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.EQUALITY_OPERATOR, "=="),
-                                new BooleanLiteralRule(false),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                    new IdentifierRule("x"),
-                                    new IdentifierRule("y")
-                                    )
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        BinExpr(
+                            NOT_EQUAL,
+                            Bool(false),
+                            BinExpr(PLUS, Id("x"), Id("y"))
+                            )
+                        )
+                    )
                 );
         }
 
@@ -76,66 +64,54 @@ namespace TestHandwrittenRDPxUTests
         [Fact]
         public void NonEqualityWithBooleanCheck()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"x >= 0 != true;");
+            var parsedResult = Parser(@"x >= 0 != true;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.EQUALITY_OPERATOR, "!="),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.RELATIONAL_OPERATOR, ">="),
-                                    new IdentifierRule("x"),
-                                    new NumericLiteralRule(0)
-                                    ),
-                                new BooleanLiteralRule(true)
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        BinExpr(
+                            NOT_EQUAL,
+                            BinExpr(GREATER_EQ, Id("x"), Int(0)),
+                            Bool(true)
+                            )
+                        )
+                    )
                 );
         }
 
         [Fact]
         public void NonEqualityWithBooleanCheckRight()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"null != x > 0;");
+            var parsedResult = Parser(@"null != x > 0;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.EQUALITY_OPERATOR, "!="),
-                                new NullLiteralRule(),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.RELATIONAL_OPERATOR, ">"),
-                                    new IdentifierRule("x"),
-                                    new NumericLiteralRule(0)
-                                    )
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        BinExpr(
+                            NOT_EQUAL,
+                            Null(),
+                            BinExpr(GREATER, Id("x"), Int(0))
+                            )
+                        )
+                    )
                 );
         }
 
         [Fact]
         public void NonEqualityWithAdditiveCheckRight()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"false != x + y;");
+            var parsedResult = Parser(@"false != x + y;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.EQUALITY_OPERATOR, "!="),
-                                new BooleanLiteralRule(false),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                    new IdentifierRule("x"),
-                                    new IdentifierRule("y")
-                                    )
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        BinExpr(
+                            NOT_EQUAL,
+                            Bool(false),
+                            BinExpr(PLUS, Id("x"), Id("y"))
+                            )
+                        )
+                    )
                 );
         }
     }

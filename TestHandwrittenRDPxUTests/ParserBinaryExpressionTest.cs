@@ -5,201 +5,167 @@ using TestHandwrittenRDP;
 
 namespace TestHandwrittenRDPxUTests
 {
-    public class ParserBinaryExpressionTest
+    public class ParserBinaryExpressionTest : ParserUnitTestModule
     {
         [Fact]
-        public void Additive()
+        public void int_plus_int()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"2 + 3;");
+            var parsedResult = Parser(@"2 + 3;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                new NumericLiteralRule(2),
-                                new NumericLiteralRule(3)
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        BinExpr(PLUS, Int(2), Int(3))
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void AdditiveIdentifier()
+        public void var_plus_var()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"x + y;");
+            var parsedResult = Parser(@"x + y;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                new IdentifierRule("x"),
-                                new IdentifierRule("y")
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        BinExpr(PLUS, Id("x"), Id("y"))
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void AdditiveComplex()
+        public void int_plus_int_minus_int()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"5 + 3 - 4;");
+            var parsedResult = Parser(@"5 + 3 - 4;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.ADDITIVE_OPERATOR, "-"),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                    new NumericLiteralRule(5),
-                                    new NumericLiteralRule(3)
-                                ),
-                                new NumericLiteralRule(4)
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        BinExpr(
+                            MINUS,
+                            BinExpr(PLUS, Int(5), Int(3)),
+                            Int(4)
+                            )
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void AdditiveWithMultiplicativeComplex()
+        public void int_plus_int_into_int()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"5 + 3 * 4;");
+            var parsedResult = Parser(@"5 + 3 * 4;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                new NumericLiteralRule(5),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.MULTIPLICATIVE_OPERATOR, "*"),
-                                    new NumericLiteralRule(3),
-                                    new NumericLiteralRule(4)
-                                )
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        BinExpr(
+                            PLUS,
+                            Int(5),
+                            BinExpr(INTO, Int(3), Int(4))
+                            )
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void MultiplicativeComplex()
+        public void int_into_int_into_int()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"5 * 3 * 4;");
+            var parsedResult = Parser(@"5 * 3 * 4;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.MULTIPLICATIVE_OPERATOR, "*"),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.MULTIPLICATIVE_OPERATOR, "*"),
-                                    new NumericLiteralRule(5),
-                                    new NumericLiteralRule(3)
-                                ),
-                                new NumericLiteralRule(4)
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        BinExpr(
+                            INTO,
+                            BinExpr(INTO, Int(5), Int(3)),
+                            Int(4)
+                            )
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void WithParenthesis()
+        public void bra_int_plus_int_bra()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"(5 + 3);");
+            var parsedResult = Parser(@"(5 + 3);");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                new NumericLiteralRule(5),
-                                new NumericLiteralRule(3)
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        BinExpr(PLUS, Int(5), Int(3))
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void WithParenthesisLeft()
+        public void bra_int_plus_int_bra_into_int()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"(5 + 3) * 4;");
+            var parsedResult = Parser(@"(5 + 3) * 4;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.MULTIPLICATIVE_OPERATOR, "*"),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                    new NumericLiteralRule(5),
-                                    new NumericLiteralRule(3)
-                                ),
-                                new NumericLiteralRule(4)
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        BinExpr(
+                            INTO,
+                            BinExpr(PLUS, Int(5), Int(3)),
+                            Int(4)
+                            )
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void WithParenthesisComplexDivision()
+        public void bra_int_plus_int_bra_div_int()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"(5 + 3) / 4;");
+            var parsedResult = Parser(@"(5 + 3) / 4;");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.MULTIPLICATIVE_OPERATOR, "/"),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                    new NumericLiteralRule(5),
-                                    new NumericLiteralRule(3)
-                                ),
-                                new NumericLiteralRule(4)
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        BinExpr(
+                            DIVIDE,
+                            BinExpr(PLUS, Int(5), Int(3)),
+                            Int(4)
+                            )
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void WithParenthesisComplexDivisionRight()
+        public void int_div_bra_int_plus_int_bra()
         {
-            var parsedResult = ParserAssignHelper.AssignParser(@"4 / (5 + 3);");
+            var parsedResult = Parser(@"4 / (5 + 3);");
 
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(
-                            new BinaryExpressionRule(
-                                new BaseToken(ETokenType.MULTIPLICATIVE_OPERATOR, "/"),
-                                new NumericLiteralRule(4),
-                                new BinaryExpressionRule(
-                                    new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
-                                    new NumericLiteralRule(5),
-                                    new NumericLiteralRule(3)
-                                )
-                            ))
-                    })
+            AssertAST(parsedResult,
+                Program(
+                    ExprStmt(
+                        BinExpr(
+                            DIVIDE,
+                            Int(4),
+                            BinExpr(PLUS, Int(5), Int(3))
+                            )
+                        )
+                    )
                 );
         }
 
         [Fact]
-        public void WithNoRightParenthesis()
+        public void ERR_bra_int_plus_int()
         {
-            var parsedResult = () => ParserAssignHelper.AssignParser(@"(5 + 3;");
+            var ruleBuilder = () => Parser(@"(5 + 3;");
 
-            var exception = Assert.Throws<SyntaxErrorException>(parsedResult);
-            Assert.Equal($"Unexpected token: ';', expected: '{ETokenType.RIGHT_PARENTHESIS}'", exception.Message);
+            AssertErr<SyntaxErrorException>(
+                () => Parser(@"(5 + 3;")!,
+                $"Unexpected token: ';', expected: '{ETokenType.RIGHT_PARENTHESIS}'"
+                );
         }
     }
 }
