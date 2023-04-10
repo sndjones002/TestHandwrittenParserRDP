@@ -10,12 +10,15 @@ namespace TestHandwrittenRDP
     [JsonDerivedType(typeof(AssignmentExpressionRule))]
     [JsonDerivedType(typeof(IdentifierRule))]
     [JsonDerivedType(typeof(BinaryExpressionRule))]
+    [JsonDerivedType(typeof(LogicalExpressionRule))]
     [JsonDerivedType(typeof(ProgramRule))]
     [JsonDerivedType(typeof(BlockStatementRule))]
     [JsonDerivedType(typeof(EmptyStatementRule))]
     [JsonDerivedType(typeof(ExpressionStatementRule))]
     [JsonDerivedType(typeof(NumericLiteralRule))]
     [JsonDerivedType(typeof(StringLiteralRule))]
+    [JsonDerivedType(typeof(BooleanLiteralRule))]
+    [JsonDerivedType(typeof(NullLiteralRule))]
     [JsonDerivedType(typeof(BaseRuleList))]
     public record BaseRule(ELiteralType LiteralType);
 
@@ -27,9 +30,12 @@ namespace TestHandwrittenRDP
 
     public record NumericLiteralRule(int Value) : BaseRule(ELiteralType.NumericLiteral);
     public record StringLiteralRule(string Value) : BaseRule(ELiteralType.StringLiteral);
+    public record BooleanLiteralRule(bool Value) : BaseRule(ELiteralType.BooleanLiteral);
+    public record NullLiteralRule() : BaseRule(ELiteralType.NullLiteral);
     public record IdentifierRule(string Value) : BaseRule(ELiteralType.Identifier);
 
     public record BinaryExpressionRule(BaseToken Operator, BaseRule Left, BaseRule Right) : BaseRule(ELiteralType.BinaryExpression);
+    public record LogicalExpressionRule(BaseToken Operator, BaseRule Left, BaseRule Right) : BaseRule(ELiteralType.LogicalExpression);
 
     public record AssignmentExpressionRule(BaseToken Operator, BaseRule Left, BaseRule Right) : BaseRule(ELiteralType.AssignmentExpression);
 

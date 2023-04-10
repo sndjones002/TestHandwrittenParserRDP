@@ -38,12 +38,22 @@ namespace TestHandwrittenRDP
 
                 (@"\G\blet\b", ETokenType.KEYWORD_LET),
                 (@"\G\bif\b", ETokenType.KEYWORD_IF),
+                (@"\G\btrue\b", ETokenType.KEYWORD_TRUE),
+                (@"\G\bfalse\b", ETokenType.KEYWORD_FALSE),
+                (@"\G\bnull\b", ETokenType.KEYWORD_NULL),
+
                 (@"\G\belse\b", ETokenType.KEYWORD_ELSE),
                 (@"\G\d+", ETokenType.NUMBER),
                 (@"\G""[^""]*""", ETokenType.STRING),
                 (@"\G\w+", ETokenType.IDENTIFIER),
 
                 #endregion Literals
+
+                #region Operations, Mathematical
+
+                (@"\G[=!]=", ETokenType.EQUALITY_OPERATOR), // Needs to be recognised before SIMPLE_ASSIGNMENT
+
+                #endregion Operations, Mathematical
 
                 #region Assignments
 
@@ -57,6 +67,8 @@ namespace TestHandwrittenRDP
                 (@"\G[+-]", ETokenType.ADDITIVE_OPERATOR),
                 (@"\G[*/]", ETokenType.MULTIPLICATIVE_OPERATOR),
                 (@"\G[><]=?", ETokenType.RELATIONAL_OPERATOR),
+                (@"\G&&", ETokenType.LOGICAL_AND),
+                (@"\G\|\|", ETokenType.LOGICAL_OR),
 
                 #endregion Operations, Mathematical
             };
@@ -111,51 +123,10 @@ namespace TestHandwrittenRDP
 			{
 				MoveAhead(matched.Length);
 
-				switch(tokenType)
-				{
-					case ETokenType.NUMBER:
-                        return new NumberToken(matched.Value);
-					case ETokenType.STRING:
-                        return new StringToken(matched.Value);
-                    case ETokenType.WHITESPACES:
-                        return new WhitespacesToken(matched.Value);
-                    case ETokenType.COMMENT:
-                        return new CommentToken(matched.Value);
-                    case ETokenType.MULTILINE_COMMENT:
-                        return new MultilineCommentToken(matched.Value);
-                    case ETokenType.SEMICOLON:
-                        return new BaseToken(ETokenType.SEMICOLON, matched.Value);
-                    case ETokenType.OPEN_CURLY_BRACES:
-                        return new BaseToken(ETokenType.OPEN_CURLY_BRACES, matched.Value);
-                    case ETokenType.CLOSE_CURLY_BRACES:
-                        return new BaseToken(ETokenType.CLOSE_CURLY_BRACES, matched.Value);
-                    case ETokenType.ADDITIVE_OPERATOR:
-                        return new BaseToken(ETokenType.ADDITIVE_OPERATOR, matched.Value);
-                    case ETokenType.MULTIPLICATIVE_OPERATOR:
-                        return new BaseToken(ETokenType.MULTIPLICATIVE_OPERATOR, matched.Value);
-                    case ETokenType.LEFT_PARENTHESIS:
-                        return new BaseToken(ETokenType.LEFT_PARENTHESIS, matched.Value);
-                    case ETokenType.RIGHT_PARENTHESIS:
-                        return new BaseToken(ETokenType.RIGHT_PARENTHESIS, matched.Value);
-                    case ETokenType.COMMA:
-                        return new BaseToken(ETokenType.COMMA, matched.Value);
-                    case ETokenType.IDENTIFIER:
-                        return new IdentifierToken(matched.Value);
-                    case ETokenType.SIMPLE_ASSIGNMENT:
-                        return new BaseToken(ETokenType.SIMPLE_ASSIGNMENT, matched.Value);
-                    case ETokenType.COMPLEX_ASSIGNMENT:
-                        return new BaseToken(ETokenType.COMPLEX_ASSIGNMENT, matched.Value);
-                    case ETokenType.KEYWORD_LET:
-                        return new KeywordToken(ETokenType.KEYWORD_LET, matched.Value);
-                    case ETokenType.KEYWORD_IF:
-                        return new KeywordToken(ETokenType.KEYWORD_IF, matched.Value);
-                    case ETokenType.KEYWORD_ELSE:
-                        return new KeywordToken(ETokenType.KEYWORD_ELSE, matched.Value);
-                    case ETokenType.RELATIONAL_OPERATOR:
-                        return new BaseToken(ETokenType.RELATIONAL_OPERATOR, matched.Value);
-                    default:
-						return null;
-                }
+                if (!Enum.IsDefined<ETokenType>(tokenType))
+                    return null;
+                else
+                    return new BaseToken(tokenType, matched.Value);
 			}
 			else
 				return null;

@@ -294,14 +294,14 @@ namespace TestHandwrittenRDP
 		/// equivalent multiple rules as LL(1) can handle Right recursion.
 		/// 
         /// AssignmentExpression
-		///		: RelationalExpression
+		///		: LogicalORExpression
 		///		| LeftHandSideExpression AssignmentOperator AssignmentExpression
 		///		;
         /// </summary>
         /// <returns></returns>
         private BaseRule AssignmentExpression()
 		{
-			var left = this.RelationalExpression();
+			var left = this.LogicalORExpression();
 
 			if (this._lookahead == null || !TokenizerForParser.IsAssignmentToken(this._lookahead))
 				return left;
@@ -312,6 +312,70 @@ namespace TestHandwrittenRDP
 				this.AssignmentExpression()
 				);
 		}
+
+        /// <summary>
+        /// Logical OR has even lower precedence than Logical AND
+        ///
+        /// LogicalORExpression
+        ///		: LogicalANDExpression LOGICAL_OR LogicalORExpression
+        ///		| LogicalORExpression
+        ///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule LogicalORExpression()
+        {
+            return this.LogicalExpression(ETokenType.LOGICAL_OR, this.LogicalANDExpression);
+
+        }
+
+        /// <summary>
+        /// Logical AND has lower precedence than equality but has higher
+		/// precedence than Assignment
+        ///
+        /// LogicalANDExpression
+		///		: EqualityExpression LOGICAL_AND LogicalANDExpression
+		///		| EqualityExpression
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule LogicalANDExpression()
+		{
+			return this.LogicalExpression(ETokenType.LOGICAL_AND, this.EqualityExpression);
+
+        }
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		private BaseRule LogicalExpression(ETokenType tokenType, Func<BaseRule> ruleBuilder)
+		{
+			var left = ruleBuilder();
+
+			while(this._lookahead != null &&
+				this._lookahead.TokenType == tokenType)
+			{
+                var op = this.Eat(tokenType);
+                var right = ruleBuilder();
+
+                left = new LogicalExpressionRule(op, left, right);
+            }
+
+            return left;
+        }
+
+        /// <summary>
+        /// EQUALITY_OPERATOR == !=
+        ///
+        /// EqualityExpression
+		///		: RelationalExpression EQUALITY_OPERATOR EqualityExpression
+		///		| RelationalExpression
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule EqualityExpression()
+		{
+            return this.BinaryExpression(ETokenType.EQUALITY_OPERATOR, this.RelationalExpression);
+        }
 
         /// <summary>
 		/// RELATIONAL_OPERATORS <, >=, <, <=
@@ -454,9 +518,19 @@ namespace TestHandwrittenRDP
             }
 		}
 
+		/// <summary>
+		/// Literals
+		/// </summary>
+		/// <param name="tokenType"></param>
+		/// <returns></returns>
 		private bool IsLiteral(ETokenType tokenType)
 		{
-			return tokenType == ETokenType.NUMBER || tokenType == ETokenType.STRING;
+			return tokenType == ETokenType.NUMBER ||
+				tokenType == ETokenType.STRING ||
+				tokenType == ETokenType.KEYWORD_FALSE ||
+				tokenType == ETokenType.KEYWORD_TRUE ||
+                tokenType == ETokenType.KEYWORD_NULL
+                ;
 		}
 
         /// <summary>
@@ -477,9 +551,12 @@ namespace TestHandwrittenRDP
 		}
 
         /// <summary>
-        /// Literals
-        ///		: Numeric Literals
-        ///		| String Literals
+        /// Literal
+        ///		: NumericLiteral
+        ///		| StringLiteral
+		///		| BooleanLiteral
+		///		| NullLiteral
+		///		;
         /// </summary>
         /// <returns></returns>
         private BaseRule Literal()
@@ -490,7 +567,13 @@ namespace TestHandwrittenRDP
 					return this.NumericLiteral();
 				case ETokenType.STRING:
 					return this.StringLiteral();
-				default:
+                case ETokenType.KEYWORD_TRUE:
+                    return this.BooleanLiteral(ETokenType.KEYWORD_TRUE);
+                case ETokenType.KEYWORD_FALSE:
+                    return this.BooleanLiteral(ETokenType.KEYWORD_FALSE);
+                case ETokenType.KEYWORD_NULL:
+                    return this.NullLiteral();
+                default:
 					return null;
 			}
 		}
@@ -517,6 +600,32 @@ namespace TestHandwrittenRDP
 
 			// Slice the string to save without double quotes
             return this._astFactory.StringLiteral(token.Value);
+        }
+
+        /// <summary>
+        /// BooleanLiteral expects
+        ///		: boolean token
+        /// </summary>
+        /// <returns></returns>
+        private BooleanLiteralRule BooleanLiteral(ETokenType tokenType)
+        {
+            var token = this.Eat(tokenType);
+
+            // Slice the string to save without double quotes
+            return this._astFactory.BooleanLiteral(token.Value);
+        }
+
+        /// <summary>
+        /// NullLiteral expects
+        ///		: null token
+        /// </summary>
+        /// <returns></returns>
+        private NullLiteralRule NullLiteral()
+        {
+            var token = this.Eat(ETokenType.KEYWORD_NULL);
+
+            // Slice the string to save without double quotes
+            return this._astFactory.NullLiteral(token.Value);
         }
     }
 }

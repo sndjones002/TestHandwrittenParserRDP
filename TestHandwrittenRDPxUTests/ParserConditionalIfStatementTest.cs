@@ -165,6 +165,45 @@ namespace TestHandwrittenRDPxUTests
                     })
                 ); ;
         }
+
+        [Fact]
+        public void ComplexNestedIfWithExpressionBooleanEquality()
+        {
+            var parsedResult = ParserAssignHelper.AssignParser(@"
+		if(x > 10 == y)  if(y) {} else { y + 1; }
+");
+            ParserAssertHelper.AssertAST(parsedResult,
+                new ProgramRule(
+                    new List<BaseRule> {
+                        new IfStatementRule(
+                            new BinaryExpressionRule(
+                                new BaseToken(ETokenType.EQUALITY_OPERATOR, "=="),
+                                new BinaryExpressionRule(
+                                    new BaseToken(ETokenType.RELATIONAL_OPERATOR, ">"),
+                                    new IdentifierRule("x"),
+                                    new NumericLiteralRule(10)
+                                    ),
+                                new IdentifierRule("y")
+                                ),
+                            new IfStatementRule(
+                                new IdentifierRule("y"),
+                                new BlockStatementRule(new List<BaseRule>()),
+                                new BlockStatementRule(
+                                    new List<BaseRule>
+                                    {
+                                        new ExpressionStatementRule(
+                                            new BinaryExpressionRule(
+                                                new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
+                                                new IdentifierRule("y"),
+                                                new NumericLiteralRule(1)
+                                            ))
+                                    })
+                                ),
+                            null
+                            )
+                    })
+                ); ;
+        }
     }
 }
 

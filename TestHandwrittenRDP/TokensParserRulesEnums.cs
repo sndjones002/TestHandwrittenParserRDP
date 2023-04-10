@@ -6,6 +6,8 @@ namespace TestHandwrittenRDP
 		Program,
 		NumericLiteral,
 		StringLiteral,
+		BooleanLiteral,
+		NullLiteral,
 		Identifier,
 
 		EmptyStatement,
@@ -13,6 +15,7 @@ namespace TestHandwrittenRDP
 		BlockStatement,
 
 		BinaryExpression,
+		LogicalExpression,
 
 		AssignmentExpression,
 
@@ -27,6 +30,9 @@ namespace TestHandwrittenRDP
 		KEYWORD_LET,
 		KEYWORD_IF,
         KEYWORD_ELSE,
+        KEYWORD_TRUE,
+        KEYWORD_FALSE,
+        KEYWORD_NULL,
 
         NUMBER,
         STRING,
@@ -63,6 +69,9 @@ namespace TestHandwrittenRDP
 		RELATIONAL_OPERATOR,
         ADDITIVE_OPERATOR,
 		MULTIPLICATIVE_OPERATOR,
+		EQUALITY_OPERATOR,
+		LOGICAL_AND,
+		LOGICAL_OR,
 
 		IDENTIFIER,
 		SIMPLE_ASSIGNMENT, // Only '=' sign, e.g., x = 2;

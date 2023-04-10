@@ -54,6 +54,16 @@ namespace TestHandwrittenRDP
         {
             return new IfStatementRule(test, consequent, alternate);
         }
+
+        public BooleanLiteralRule BooleanLiteral(string value)
+        {
+            return new BooleanLiteralRule(bool.Parse(value));
+        }
+
+        public NullLiteralRule NullLiteral(string value)
+        {
+            return new NullLiteralRule();
+        }
     }
 }
 
