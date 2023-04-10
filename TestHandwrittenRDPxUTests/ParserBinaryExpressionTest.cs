@@ -5,10 +5,10 @@ using TestHandwrittenRDP;
 
 namespace TestHandwrittenRDPxUTests
 {
-    public class ParserBinaryExpression
+    public class ParserBinaryExpressionTest
     {
         [Fact]
-        public void BinaryStatementPlus()
+        public void Additive()
         {
             var parsedResult = ParserAssignHelper.AssignParser(@"2 + 3;");
 
@@ -26,7 +26,25 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void BinaryStatementAdditiveComplex()
+        public void AdditiveIdentifier()
+        {
+            var parsedResult = ParserAssignHelper.AssignParser(@"x + y;");
+
+            ParserAssertHelper.AssertAST(parsedResult,
+                new ProgramRule(
+                    new List<BaseRule> {
+                        new ExpressionStatementRule(
+                            new BinaryExpressionRule(
+                                new BaseToken(ETokenType.ADDITIVE_OPERATOR, "+"),
+                                new IdentifierRule("x"),
+                                new IdentifierRule("y")
+                            ))
+                    })
+                );
+        }
+
+        [Fact]
+        public void AdditiveComplex()
         {
             var parsedResult = ParserAssignHelper.AssignParser(@"5 + 3 - 4;");
 
@@ -48,7 +66,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void BinaryStatementAdditiveWithMultiplicativeComplex()
+        public void AdditiveWithMultiplicativeComplex()
         {
             var parsedResult = ParserAssignHelper.AssignParser(@"5 + 3 * 4;");
 
@@ -70,7 +88,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void BinaryStatementMultiplicativeComplex()
+        public void MultiplicativeComplex()
         {
             var parsedResult = ParserAssignHelper.AssignParser(@"5 * 3 * 4;");
 
@@ -92,7 +110,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void BinaryStatementWithParenthesis()
+        public void WithParenthesis()
         {
             var parsedResult = ParserAssignHelper.AssignParser(@"(5 + 3);");
 
@@ -110,7 +128,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void BinaryStatementWithParenthesisComplex()
+        public void WithParenthesisLeft()
         {
             var parsedResult = ParserAssignHelper.AssignParser(@"(5 + 3) * 4;");
 
@@ -132,7 +150,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void BinaryStatementWithParenthesisComplexDivision()
+        public void WithParenthesisComplexDivision()
         {
             var parsedResult = ParserAssignHelper.AssignParser(@"(5 + 3) / 4;");
 
@@ -154,7 +172,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void BinaryStatementWithParenthesisComplexDivisionChangeOrder()
+        public void WithParenthesisComplexDivisionRight()
         {
             var parsedResult = ParserAssignHelper.AssignParser(@"4 / (5 + 3);");
 
@@ -176,20 +194,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void BinaryStatementWithParenthesisSimplest()
-        {
-            var parsedResult = ParserAssignHelper.AssignParser(@"(5);");
-
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new ExpressionStatementRule(new NumericLiteralRule(5))
-                    })
-                );
-        }
-
-        [Fact]
-        public void BinaryStatementWithNoRightParenthesis()
+        public void WithNoRightParenthesis()
         {
             var parsedResult = () => ParserAssignHelper.AssignParser(@"(5 + 3;");
 

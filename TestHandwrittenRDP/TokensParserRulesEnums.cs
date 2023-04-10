@@ -6,16 +6,24 @@ namespace TestHandwrittenRDP
 		Program,
 		NumericLiteral,
 		StringLiteral,
+		Identifier,
 
 		EmptyStatement,
 		ExpressionStatement,
 		BlockStatement,
 
 		BinaryExpression,
-	}
+
+		AssignmentExpression,
+
+        VariableStatement,
+		VariableDeclaration,
+    }
 
     public enum ETokenType
 	{
+		KEYWORD_LET,
+
 		NUMBER,
         STRING,
 
@@ -44,11 +52,16 @@ namespace TestHandwrittenRDP
 
 		LEFT_PARENTHESIS,
         RIGHT_PARENTHESIS,
+		COMMA,
 
         #endregion Markers
 
         ADDITIVE_OPERATOR,
 		MULTIPLICATIVE_OPERATOR,
+
+		IDENTIFIER,
+		SIMPLE_ASSIGNMENT, // Only '=' sign, e.g., x = 2;
+		COMPLEX_ASSIGNMENT, // +=, -=, *=, /=, etc.,
     }
 }
 

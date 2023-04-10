@@ -23,4 +23,17 @@ public class ParserLiteralTests
 
         ParserAssertHelper.AssertAST(parsedResult, ParserAssignHelper.AssignAST_SingleExpression(new StringLiteralRule("hello")));
     }
+
+    [Fact]
+    public void WithParenthesisSimplest()
+    {
+        var parsedResult = ParserAssignHelper.AssignParser(@"((5));");
+
+        ParserAssertHelper.AssertAST(parsedResult,
+            new ProgramRule(
+                new List<BaseRule> {
+                        new ExpressionStatementRule(new NumericLiteralRule(5))
+                })
+            );
+    }
 }

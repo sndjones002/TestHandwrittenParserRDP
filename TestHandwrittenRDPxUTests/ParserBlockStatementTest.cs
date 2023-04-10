@@ -19,19 +19,6 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void EmptyStatement()
-        {
-            var parsedResult = ParserAssignHelper.AssignParser(@";");
-
-            ParserAssertHelper.AssertAST(parsedResult,
-                new ProgramRule(
-                    new List<BaseRule> {
-                        new EmptyStatementRule()
-                    })
-                );
-        }
-
-        [Fact]
         public void EmptyStatementInBlock()
         {
             var parsedResult = ParserAssignHelper.AssignParser(@"{;}");

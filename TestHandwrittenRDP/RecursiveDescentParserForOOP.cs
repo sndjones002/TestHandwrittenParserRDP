@@ -17,6 +17,11 @@ namespace TestHandwrittenRDP
 			this._astFactory = astFactory ?? new ASTFactoryDefault();
 		}
 
+		/// <summary>
+		/// Main function to parse the code
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
 		public BaseRule Parse(string data)
 		{
 			this._data = data;
@@ -98,6 +103,7 @@ namespace TestHandwrittenRDP
 		///		: ExpressionStatement
 		///		| BlockStatement
 		///		| EmptyStatement
+		///		| VariableStatement
 		///		;
         /// </summary>
         private BaseRule Statement()
@@ -110,9 +116,80 @@ namespace TestHandwrittenRDP
 					return this.EmptyStatement();
 				case ETokenType.OPEN_CURLY_BRACES:
 					return this.BlockStatement();
-				default:
+                case ETokenType.KEYWORD_LET:
+                    return this.VariableStatement();
+                default:
                     return this.ExpressionStatement();
             }
+		}
+
+
+        /// <summary>
+        /// VariableStatement
+		///		: 'let' VariableDeclarationList ';'
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule VariableStatement()
+		{
+			this.Eat(ETokenType.KEYWORD_LET);
+
+			var declarations = this.VariableDeclarationList();
+
+			this.Eat(ETokenType.SEMICOLON);
+
+			return this._astFactory.VariableStatement(declarations);
+        }
+
+        /// <summary>
+        /// VariableDeclarationList
+		///		: VariableDeclaration
+		///		| VariableDeclarationList ',' VariableDeclaration
+		///		--> (Left recursion not allowed in LL Grammer, so to remove it in code
+		///		     use a while loop)
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private List<BaseRule> VariableDeclarationList()
+		{
+			var declarations = new List<BaseRule>();
+
+			do
+			{
+				declarations.Add(this.VariableDeclaration());
+            } while (this._lookahead.TokenType == ETokenType.COMMA &&
+				this.Eat(ETokenType.COMMA) != null);
+
+			return declarations;
+
+        }
+
+        /// <summary>
+        /// VariableDeclaration
+		///		: IDENTIFIER OptVariableInitialization
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule VariableDeclaration()
+		{
+			var id = this.Identifier();
+			var init = (this._lookahead.TokenType != ETokenType.SEMICOLON &&
+						this._lookahead.TokenType != ETokenType.COMMA) ?
+						this.VariableInitializer() : null;
+
+			return this._astFactory.VariableDeclaration(id, init);
+		}
+
+        /// <summary>
+        /// VariableInitializer
+		///		: SIMPLE_ASSIGNMENT AssignmentExpression
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule VariableInitializer()
+		{
+			this.Eat(ETokenType.SIMPLE_ASSIGNMENT);
+			return this.AssignmentExpression();
 		}
 
         /// <summary>
@@ -163,14 +240,91 @@ namespace TestHandwrittenRDP
 
         /// <summary>
         /// Expression
-        ///		: AdditiveExpression
+        ///		: AssignmentExpression
         ///		;
         /// </summary>
         /// <returns></returns>
         private BaseRule Expression()
 		{
-			return this.AdditiveExpression();
+			return this.AssignmentExpression();
 		}
+
+        /// <summary>
+		/// Assignment can be chained like x = y = 42;
+		/// In this case recursion is Right recursion, we dont need to convert to
+		/// equivalent multiple rules as LL(1) can handle Right recursion.
+		/// 
+        /// AssignmentExpression
+		///		: AdditiveExpression
+		///		| LeftHandSideExpression AssignmentOperator AssignmentExpression
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule AssignmentExpression()
+		{
+			var left = this.AdditiveExpression();
+
+			if (this._lookahead == null || !TokenizerForParser.IsAssignmentToken(this._lookahead))
+				return left;
+
+			return new AssignmentExpressionRule(
+				this.AssignmentOperator(),
+				this.CheckValidAssignmentTarget(left),
+				this.AssignmentExpression()
+				);
+		}
+
+        /// <summary>
+        /// Consume assigment operator token
+        ///
+        /// AssignmentOperator
+		///		: SIMPLE_ASSIGNMENT
+		///		| COMPLEX_ASSIGNMENT
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseToken AssignmentOperator()
+		{
+			if (this._lookahead.TokenType == ETokenType.SIMPLE_ASSIGNMENT)
+				return this.Eat(ETokenType.SIMPLE_ASSIGNMENT);
+			return this.Eat(ETokenType.COMPLEX_ASSIGNMENT);
+		}
+
+        /// <summary>
+        /// LeftHandSideExpression
+		///		: Idenitifer
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule LeftHandSideExpression()
+		{
+			return this.Identifier();
+		}
+
+        /// <summary>
+        /// Identifier
+		///		: IDENTIFIER
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule Identifier()
+		{
+			var token = this.Eat(ETokenType.IDENTIFIER);
+            return this._astFactory.Identifier(token.Value);
+        }
+
+		/// <summary>
+		/// Extra check if the left hand side is a valid assignment target
+		/// </summary>
+		/// <param name="rule"></param>
+		/// <returns></returns>
+		/// <exception cref="SyntaxErrorException"></exception>
+		private BaseRule CheckValidAssignmentTarget(BaseRule rule)
+		{
+			if (rule.LiteralType == ELiteralType.Identifier)
+				return rule;
+			throw new SyntaxErrorException("Invalid left-hand side in assignment expression");
+        }
 
         /// <summary>
         /// Literal (Operand) has the higher precedence than the operator.
@@ -229,18 +383,27 @@ namespace TestHandwrittenRDP
         /// PrimaryExpression
 		///		: Literal
 		///		| ParenthesizedExpression
+		///		| LeftHandSideExpression
 		///		;
         /// </summary>
         /// <returns></returns>
         private BaseRule PrimaryExpression()
 		{
-			switch(this._lookahead.TokenType)
+			if(this.IsLiteral(this._lookahead.TokenType))
+				return this.Literal();
+
+            switch (this._lookahead.TokenType)
 			{
 				case ETokenType.LEFT_PARENTHESIS:
 					return this.ParenthesizedExpression();
 				default:
-                    return this.Literal();
+                    return this.LeftHandSideExpression();
             }
+		}
+
+		private bool IsLiteral(ETokenType tokenType)
+		{
+			return tokenType == ETokenType.NUMBER || tokenType == ETokenType.STRING;
 		}
 
         /// <summary>

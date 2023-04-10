@@ -9,22 +9,60 @@ namespace TestHandwrittenRDP
         private string _data;
         private int _cursor;
 
+        /// <summary>
+        /// Order of the Tokens are very important
+        /// </summary>
 		private List<(string Regexterm, ETokenType Token)> _tokens =
 			new()
 			{
-				("\\G\\d+", ETokenType.NUMBER),
-                ("\\G\"[^\"]*\"", ETokenType.STRING),
-				("\\G\\s+", ETokenType.WHITESPACES), // returns null BaseToken, includes newlines
-				("\\G//.*", ETokenType.COMMENT),
+                #region Comments, Whitespaces, Newlines, to be skipped
+
+                (@"\G\s+", ETokenType.WHITESPACES), // returns null BaseToken, includes newlines
+				(@"\G//.*", ETokenType.COMMENT),
                 (@"\G/\*[\s\S]*?\*/", ETokenType.MULTILINE_COMMENT),
+
+                #endregion Comments, Whitespaces, Newlines, to be skipped
+
+                #region Symbols, Delimiters
+
                 (@"\G;", ETokenType.SEMICOLON),
                 (@"\G{", ETokenType.OPEN_CURLY_BRACES),
                 (@"\G}", ETokenType.CLOSE_CURLY_BRACES),
-                (@"\G[+-]", ETokenType.ADDITIVE_OPERATOR),
-                (@"\G[*/]", ETokenType.MULTIPLICATIVE_OPERATOR),
                 (@"\G\(", ETokenType.LEFT_PARENTHESIS),
                 (@"\G\)", ETokenType.RIGHT_PARENTHESIS),
+                (@"\G,", ETokenType.COMMA),
+
+                #endregion Symbols
+
+                #region Literals
+
+                (@"\G\blet\b", ETokenType.KEYWORD_LET),
+                (@"\G\d+", ETokenType.NUMBER),
+                (@"\G""[^""]*""", ETokenType.STRING),
+                (@"\G\w+", ETokenType.IDENTIFIER),
+
+                #endregion Literals
+
+                #region Assignments
+
+                (@"\G[*/+-]=", ETokenType.COMPLEX_ASSIGNMENT), // Order of Parsing tokens is very important
+                (@"\G=", ETokenType.SIMPLE_ASSIGNMENT),
+
+                #endregion Assignments
+
+                #region Operations, Mathematical
+
+                (@"\G[+-]", ETokenType.ADDITIVE_OPERATOR),
+                (@"\G[*/]", ETokenType.MULTIPLICATIVE_OPERATOR),
+
+                #endregion Operations, Mathematical
             };
+
+        public static bool IsAssignmentToken(BaseToken token)
+        {
+            return token.TokenType == ETokenType.SIMPLE_ASSIGNMENT ||
+                token.TokenType == ETokenType.COMPLEX_ASSIGNMENT;
+        }
 
         public void Init(string data)
 		{
@@ -96,6 +134,16 @@ namespace TestHandwrittenRDP
                         return new BaseToken(ETokenType.LEFT_PARENTHESIS, matched.Value);
                     case ETokenType.RIGHT_PARENTHESIS:
                         return new BaseToken(ETokenType.RIGHT_PARENTHESIS, matched.Value);
+                    case ETokenType.COMMA:
+                        return new BaseToken(ETokenType.COMMA, matched.Value);
+                    case ETokenType.IDENTIFIER:
+                        return new IdentifierToken(matched.Value);
+                    case ETokenType.SIMPLE_ASSIGNMENT:
+                        return new BaseToken(ETokenType.SIMPLE_ASSIGNMENT, matched.Value);
+                    case ETokenType.COMPLEX_ASSIGNMENT:
+                        return new BaseToken(ETokenType.COMPLEX_ASSIGNMENT, matched.Value);
+                    case ETokenType.KEYWORD_LET:
+                        return new KeywordToken(ETokenType.KEYWORD_LET, matched.Value);
                     default:
 						return null;
                 }

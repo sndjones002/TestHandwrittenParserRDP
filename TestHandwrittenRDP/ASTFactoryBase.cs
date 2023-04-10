@@ -34,6 +34,21 @@ namespace TestHandwrittenRDP
         {
             return new StringLiteralRule(value[1..^1]);
         }
+
+        public BaseRule Identifier(string value)
+        {
+            return new IdentifierRule(value);
+        }
+
+        public BaseRule VariableStatement(List<BaseRule> declarations)
+        {
+            return new VariableStatementRule(declarations);
+        }
+
+        public BaseRule VariableDeclaration(BaseRule id, BaseRule init)
+        {
+            return new VariableDeclarationRule(id, init);
+        }
     }
 }
 
