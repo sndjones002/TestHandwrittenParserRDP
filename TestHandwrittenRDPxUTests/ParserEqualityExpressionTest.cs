@@ -6,7 +6,7 @@ namespace TestHandwrittenRDPxUTests
 	public class ParserEqualityExpressionTest : ParserUnitTestModule
     {
         [Fact]
-        public void EqualityWithBooleanCheck()
+        public void relational_equalto_true()
         {
             var parsedResult = Parser(@"x > 0 == true;");
 
@@ -24,7 +24,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void EqualityWithBooleanCheckRight()
+        public void false_equalto_relational()
         {
             var parsedResult = Parser(@"false == x > 0;");
 
@@ -42,7 +42,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void EqualityWithAdditiveCheckRight()
+        public void false_notequal_additive()
         {
             var parsedResult = Parser(@"false != x + y;");
 
@@ -62,7 +62,7 @@ namespace TestHandwrittenRDPxUTests
         //////
 
         [Fact]
-        public void NonEqualityWithBooleanCheck()
+        public void relational_notequal_true()
         {
             var parsedResult = Parser(@"x >= 0 != true;");
 
@@ -80,7 +80,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void NonEqualityWithBooleanCheckRight()
+        public void null_noteual_relational()
         {
             var parsedResult = Parser(@"null != x > 0;");
 
@@ -98,9 +98,9 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void NonEqualityWithAdditiveCheckRight()
+        public void false_notequal_complex_additive()
         {
-            var parsedResult = Parser(@"false != x + y;");
+            var parsedResult = Parser(@"false != x + y * 3;");
 
             AssertAST(parsedResult,
                 Program(
@@ -108,7 +108,11 @@ namespace TestHandwrittenRDPxUTests
                         BinExpr(
                             NOT_EQUAL,
                             Bool(false),
-                            BinExpr(PLUS, Id("x"), Id("y"))
+                            BinExpr(
+                                PLUS,
+                                Id("x"),
+                                BinExpr(INTO, Id("y"), Int(3))
+                                )
                             )
                         )
                     )

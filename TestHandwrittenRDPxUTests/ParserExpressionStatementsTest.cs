@@ -7,7 +7,7 @@ namespace TestHandwrittenRDPxUTests
 	public partial class ParserExpressionStatementsTest : ParserUnitTestModule
     {
         [Fact]
-        public void SimpleStatementsWithSemicolon()
+        public void only_int()
         {
             var parsedResult = Parser(@"456;");
 
@@ -15,7 +15,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void CompoundStatementsWithSemicolon()
+        public void int_str()
         {
             var parsedResult = Parser(@"456;""hello"";");
 
@@ -23,7 +23,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void CompoundStatementsWithComments()
+        public void mcomment_int_scomment_str()
         {
             var parsedResult = Parser(@"
       /* This is a number
@@ -38,7 +38,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void EmptyStatement()
+        public void empty()
         {
             var parsedResult = Parser(@";");
 
@@ -46,7 +46,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void SimpleStatementsWithoutSemicolonException()
+        public void int_no_semicolon()
         {
             AssertErr<SyntaxErrorException>(
                 () => Parser(@"456")!,

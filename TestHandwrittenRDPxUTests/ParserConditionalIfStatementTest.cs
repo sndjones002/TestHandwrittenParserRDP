@@ -5,17 +5,12 @@ namespace TestHandwrittenRDPxUTests
 {
 	public class ParserConditionalIfStatementTest : ParserUnitTestModule
     {
-		[Fact]
-		public void Simple()
+		[Theory]
+        [TextFileData("if_else_simple.txt")]
+		public void if_else_simple(string code)
 		{
-            var parsedResult = Parser(@"
-		if(x) {
-		  x = 1;
-		}
-		else {
-		  x = 2;
-		}
-");
+            var parsedResult = Parser(code);
+
 			AssertAST(parsedResult,
 				Program(
                     If(
@@ -27,14 +22,12 @@ namespace TestHandwrittenRDPxUTests
                 );
         }
 
-        [Fact]
-        public void SimpleOnlyIf()
+        [Theory]
+        [TextFileData("only_if_simple.txt")]
+        public void only_if_simple(string code)
         {
-            var parsedResult = Parser(@"
-		if(x) {
-		  x = 1;
-		}
-");
+            var parsedResult = Parser(code);
+
             AssertAST(parsedResult,
                 Program(
                     If(
@@ -47,11 +40,9 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void SimpleOnlyIfNoBraces()
+        public void only_if_no_bra()
         {
-            var parsedResult = Parser(@"
-		if(x)  x = 1;
-");
+            var parsedResult = Parser(@" if(x)  x = 1; ");
 
             AssertAST(parsedResult,
                 Program(
@@ -65,7 +56,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void ComplexNestedIf()
+        public void if_nested_if_else()
         {
             var parsedResult = Parser(@"
 		if(x)  if(y) {} else { y + 1; }
@@ -87,7 +78,7 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void ComplexNestedIfWithExpression()
+        public void if_logic_nested_if_else()
         {
             var parsedResult = Parser(@"
 		if(x > 10)  if(y) {} else { y + 1; }
@@ -109,10 +100,10 @@ namespace TestHandwrittenRDPxUTests
         }
 
         [Fact]
-        public void ComplexNestedIfWithExpressionBooleanEquality()
+        public void if_logic_nested_if_else_else()
         {
             var parsedResult = Parser(@"
-		if(x > 10 == y)  if(y) {} else { y + 1; }
+		if(x > 10 == y)  if(y) {} else { y + 1; } else {}
 ");
 
             AssertAST(parsedResult,
@@ -128,7 +119,7 @@ namespace TestHandwrittenRDPxUTests
                             Block(),
                             Block(ExprStmt(BinExpr(PLUS, Id("y"), Int(1))))
                             ),
-                        null
+                        Block()
                         )
                     )
                 );

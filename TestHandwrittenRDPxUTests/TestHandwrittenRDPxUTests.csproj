@@ -25,4 +25,18 @@
   <ItemGroup>
     <ProjectReference Include="..\TestHandwrittenRDP\TestHandwrittenRDP.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="TestData\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="TestData\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="TestData\if_else_simple.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\only_if_simple.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
