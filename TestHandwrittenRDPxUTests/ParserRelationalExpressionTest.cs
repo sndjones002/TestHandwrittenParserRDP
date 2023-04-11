@@ -12,7 +12,7 @@ namespace TestHandwrittenRDPxUTests
 
             AssertAST(parsedResult,
                 Program(
-                    ExprStmt( BinExpr(GREATER, Int(2), Int(3) ) )
+                    ExprStmt( Binary(GREATER, Int(2), Int(3) ) )
                     )
                 );
         }
@@ -24,7 +24,7 @@ namespace TestHandwrittenRDPxUTests
 
             AssertAST(parsedResult,
                 Program(
-                    ExprStmt(BinExpr(GREATER_EQ, Int(2), Id("x")))
+                    ExprStmt(Binary(GREATER_EQ, Int(2), Id("x")))
                     )
                 );
         }
@@ -36,7 +36,7 @@ namespace TestHandwrittenRDPxUTests
 
             AssertAST(parsedResult,
                 Program(
-                    ExprStmt(BinExpr(LESS_EQ, Int(2), Id("x")))
+                    ExprStmt(Binary(LESS_EQ, Int(2), Id("x")))
                     )
                 );
         }
@@ -49,10 +49,10 @@ namespace TestHandwrittenRDPxUTests
             AssertAST(parsedResult,
                 Program(
                     ExprStmt(
-                        BinExpr(
+                        Binary(
                             GREATER,
                             Id("x"),
-                            BinExpr(PLUS, Id("y"), Int(3))
+                            Binary(PLUS, Id("y"), Int(3))
                             )
                         )
                     )

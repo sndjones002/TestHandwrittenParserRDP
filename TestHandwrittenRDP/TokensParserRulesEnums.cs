@@ -15,14 +15,21 @@ namespace TestHandwrittenRDP
 		BlockStatement,
 
 		BinaryExpression,
-		LogicalExpression,
+        UnaryExpression,
+        LogicalExpression,
 
 		AssignmentExpression,
 
         VariableStatement,
 		VariableDeclaration,
 
-		IfStatement,
+		WhileStatement,
+        DoWhileStatement,
+        ForStatement,
+
+        IfStatement,
+        FunctionDeclaration,
+        ReturnStatement,
     }
 
     public enum ETokenType
@@ -33,6 +40,11 @@ namespace TestHandwrittenRDP
         KEYWORD_TRUE,
         KEYWORD_FALSE,
         KEYWORD_NULL,
+        KEYWORD_WHILE,
+        KEYWORD_DO,
+        KEYWORD_FOR,
+        KEYWORD_DEF,
+		KEYWORD_RETURN,
 
         NUMBER,
         STRING,
@@ -72,6 +84,7 @@ namespace TestHandwrittenRDP
 		EQUALITY_OPERATOR,
 		LOGICAL_AND,
 		LOGICAL_OR,
+		LOGICAL_NOT,
 
 		IDENTIFIER,
 		SIMPLE_ASSIGNMENT, // Only '=' sign, e.g., x = 2;

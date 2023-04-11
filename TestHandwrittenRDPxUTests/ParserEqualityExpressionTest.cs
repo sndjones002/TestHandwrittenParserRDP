@@ -13,9 +13,9 @@ namespace TestHandwrittenRDPxUTests
             AssertAST(parsedResult,
                 Program(
                     ExprStmt(
-                        BinExpr(
+                        Binary(
                             EQUAL_TO,
-                            BinExpr(GREATER, Id("x"), Int(0)),
+                            Binary(GREATER, Id("x"), Int(0)),
                             Bool(true)
                             )
                         )
@@ -31,10 +31,10 @@ namespace TestHandwrittenRDPxUTests
             AssertAST(parsedResult,
                 Program(
                     ExprStmt(
-                        BinExpr(
+                        Binary(
                             EQUAL_TO,
                             Bool(false),
-                            BinExpr(GREATER, Id("x"), Int(0))
+                            Binary(GREATER, Id("x"), Int(0))
                             )
                         )
                     )
@@ -49,10 +49,10 @@ namespace TestHandwrittenRDPxUTests
             AssertAST(parsedResult,
                 Program(
                     ExprStmt(
-                        BinExpr(
+                        Binary(
                             NOT_EQUAL,
                             Bool(false),
-                            BinExpr(PLUS, Id("x"), Id("y"))
+                            Binary(PLUS, Id("x"), Id("y"))
                             )
                         )
                     )
@@ -69,9 +69,9 @@ namespace TestHandwrittenRDPxUTests
             AssertAST(parsedResult,
                 Program(
                     ExprStmt(
-                        BinExpr(
+                        Binary(
                             NOT_EQUAL,
-                            BinExpr(GREATER_EQ, Id("x"), Int(0)),
+                            Binary(GREATER_EQ, Id("x"), Int(0)),
                             Bool(true)
                             )
                         )
@@ -87,10 +87,10 @@ namespace TestHandwrittenRDPxUTests
             AssertAST(parsedResult,
                 Program(
                     ExprStmt(
-                        BinExpr(
+                        Binary(
                             NOT_EQUAL,
                             Null(),
-                            BinExpr(GREATER, Id("x"), Int(0))
+                            Binary(GREATER, Id("x"), Int(0))
                             )
                         )
                     )
@@ -105,13 +105,13 @@ namespace TestHandwrittenRDPxUTests
             AssertAST(parsedResult,
                 Program(
                     ExprStmt(
-                        BinExpr(
+                        Binary(
                             NOT_EQUAL,
                             Bool(false),
-                            BinExpr(
+                            Binary(
                                 PLUS,
                                 Id("x"),
-                                BinExpr(INTO, Id("y"), Int(3))
+                                Binary(INTO, Id("y"), Int(3))
                                 )
                             )
                         )

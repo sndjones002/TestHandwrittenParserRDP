@@ -41,6 +41,11 @@ namespace TestHandwrittenRDP
                 (@"\G\btrue\b", ETokenType.KEYWORD_TRUE),
                 (@"\G\bfalse\b", ETokenType.KEYWORD_FALSE),
                 (@"\G\bnull\b", ETokenType.KEYWORD_NULL),
+                (@"\G\bwhile\b", ETokenType.KEYWORD_WHILE),
+                (@"\G\bdo\b", ETokenType.KEYWORD_DO),
+                (@"\G\bfor\b", ETokenType.KEYWORD_FOR),
+                (@"\G\bdef\b", ETokenType.KEYWORD_DEF),
+                (@"\G\breturn\b", ETokenType.KEYWORD_RETURN),
 
                 (@"\G\belse\b", ETokenType.KEYWORD_ELSE),
                 (@"\G\d+", ETokenType.NUMBER),
@@ -69,6 +74,7 @@ namespace TestHandwrittenRDP
                 (@"\G[><]=?", ETokenType.RELATIONAL_OPERATOR),
                 (@"\G&&", ETokenType.LOGICAL_AND),
                 (@"\G\|\|", ETokenType.LOGICAL_OR),
+                (@"\G!", ETokenType.LOGICAL_NOT),
 
                 #endregion Operations, Mathematical
             };

@@ -27,8 +27,8 @@ namespace TestHandwrittenRDPxUTests
                     ExprStmt(
                         Logical(
                             LAND,
-                            BinExpr(GREATER, Id("x"), Int(8)),
-                            BinExpr(PLUS, Id("y"), Int(10))
+                            Binary(GREATER, Id("x"), Int(8)),
+                            Binary(PLUS, Id("y"), Int(10))
                             )
                         )
                     )
@@ -47,10 +47,10 @@ namespace TestHandwrittenRDPxUTests
                             LOR,
                             Logical(
                                 LAND,
-                                BinExpr(GREATER, Id("x"), Int(8)),
-                                BinExpr(PLUS, Id("y"), Int(10))
+                                Binary(GREATER, Id("x"), Int(8)),
+                                Binary(PLUS, Id("y"), Int(10))
                                 ),
-                            BinExpr(INTO, Id("z"), Int(2))
+                            Binary(INTO, Id("z"), Int(2))
                             )
                         )
                     )

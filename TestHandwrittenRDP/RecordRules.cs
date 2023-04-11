@@ -4,16 +4,22 @@ using System.Text.RegularExpressions;
 
 namespace TestHandwrittenRDP
 {
+    [JsonDerivedType(typeof(ReturnStatementRule))]
+    [JsonDerivedType(typeof(FunctionDeclarationRule))]
     [JsonDerivedType(typeof(IfStatementRule))]
     [JsonDerivedType(typeof(VariableStatementRule))]
     [JsonDerivedType(typeof(VariableDeclarationRule))]
     [JsonDerivedType(typeof(AssignmentExpressionRule))]
     [JsonDerivedType(typeof(IdentifierRule))]
     [JsonDerivedType(typeof(BinaryExpressionRule))]
+    [JsonDerivedType(typeof(UnaryExpressionRule))]
     [JsonDerivedType(typeof(LogicalExpressionRule))]
     [JsonDerivedType(typeof(ProgramRule))]
     [JsonDerivedType(typeof(BlockStatementRule))]
     [JsonDerivedType(typeof(EmptyStatementRule))]
+    [JsonDerivedType(typeof(WhileStatementRule))]
+    [JsonDerivedType(typeof(DoWhileStatementRule))]
+    [JsonDerivedType(typeof(ForStatementRule))]
     [JsonDerivedType(typeof(ExpressionStatementRule))]
     [JsonDerivedType(typeof(NumericLiteralRule))]
     [JsonDerivedType(typeof(StringLiteralRule))]
@@ -35,13 +41,21 @@ namespace TestHandwrittenRDP
     public record IdentifierRule(string Value) : BaseRule(ELiteralType.Identifier);
 
     public record BinaryExpressionRule(BaseToken Operator, BaseRule Left, BaseRule Right) : BaseRule(ELiteralType.BinaryExpression);
+    public record UnaryExpressionRule(BaseToken Operator, BaseRule Argument) : BaseRule(ELiteralType.UnaryExpression);
     public record LogicalExpressionRule(BaseToken Operator, BaseRule Left, BaseRule Right) : BaseRule(ELiteralType.LogicalExpression);
 
     public record AssignmentExpressionRule(BaseToken Operator, BaseRule Left, BaseRule Right) : BaseRule(ELiteralType.AssignmentExpression);
 
     public record VariableStatementRule(List<BaseRule> Declarations) : BaseRule(ELiteralType.VariableStatement);
     public record VariableDeclarationRule(BaseRule Id, BaseRule Init) : BaseRule(ELiteralType.VariableDeclaration);
+    public record WhileStatementRule(BaseRule Test, BaseRule Body) : BaseRule(ELiteralType.WhileStatement);
+    public record DoWhileStatementRule(BaseRule Body, BaseRule Test) : BaseRule(ELiteralType.DoWhileStatement);
+    public record ForStatementRule(BaseRule Init, BaseRule Test, BaseRule Update, BaseRule Body) : BaseRule(ELiteralType.ForStatement);
 
     public record IfStatementRule(BaseRule Test, BaseRule Consequent, BaseRule Alternate) : BaseRule(ELiteralType.IfStatement);
+
+    public record FunctionDeclarationRule(BaseRule Name, List<BaseRule> Parameters, BaseRule Body) : BaseRule(ELiteralType.FunctionDeclaration);
+
+    public record ReturnStatementRule(BaseRule Argument) : BaseRule(ELiteralType.ReturnStatement);
 }
 

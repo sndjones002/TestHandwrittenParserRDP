@@ -105,6 +105,9 @@ namespace TestHandwrittenRDP
 		///		| EmptyStatement
 		///		| VariableStatement
 		///		| IfStatement
+		///		| IterationStatement
+		///		| FunctionDeclaration
+		///		| ReturnStatement
 		///		;
         /// </summary>
         private BaseRule Statement()
@@ -121,9 +124,187 @@ namespace TestHandwrittenRDP
                     return this.VariableStatement();
                 case ETokenType.KEYWORD_IF:
                     return this.IfStatement();
+				case ETokenType.KEYWORD_DEF:
+					return this.FunctionDeclaration();
+				case ETokenType.KEYWORD_RETURN:
+					return this.ReturnStatement();
+				case ETokenType.KEYWORD_WHILE:
+				case ETokenType.KEYWORD_DO:
+				case ETokenType.KEYWORD_FOR:
+					return this.IterationStatement();
                 default:
                     return this.ExpressionStatement();
             }
+		}
+
+        /// <summary>
+        /// FunctionDeclaration
+		///		: 'def' Identifier '(' OptFormalParameterList ')' BlockStatement
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule FunctionDeclaration()
+		{
+			this.Eat(ETokenType.KEYWORD_DEF);
+
+			var name = this.Identifier();
+
+			this.Eat(ETokenType.LEFT_PARENTHESIS);
+			var parameters = (this._lookahead.TokenType != ETokenType.RIGHT_PARENTHESIS) ?
+					this.FormalParameterList() : null;
+
+			this.Eat(ETokenType.RIGHT_PARENTHESIS);
+
+			var body = this.BlockStatement();
+
+			return this._astFactory.FunctionDeclaration(name, parameters, body);
+		}
+
+        /// <summary>
+        /// FormalParameterList
+		///		: Identifier
+		///		| FormalParameterList ',' Identifier
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private List<BaseRule> FormalParameterList()
+		{
+			List<BaseRule> parameters = new List<BaseRule>();
+
+			do
+			{
+				parameters.Add(this.Identifier());
+            } while(this._lookahead.TokenType == ETokenType.COMMA &&
+				this.Eat(ETokenType.COMMA) != null);
+
+			return parameters.Count == 0? null : parameters;
+        }
+
+        /// <summary>
+        /// ReturnStatement
+		///		: 'return' OptExpression ';'
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule ReturnStatement()
+		{
+			this.Eat(ETokenType.KEYWORD_RETURN);
+
+			var argument = (this._lookahead.TokenType != ETokenType.SEMICOLON) ?
+					this.Expression() : null;
+			this.Eat(ETokenType.SEMICOLON);
+
+			return this._astFactory.ReturnStatement(argument);
+		}
+
+        /// <summary>
+        /// IterationStatement
+		///		: WhileStatement
+		///		| DoWhileStatement
+		///		| ForStatement
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule IterationStatement()
+		{
+			switch(this._lookahead.TokenType)
+			{
+				case ETokenType.KEYWORD_WHILE:
+					return this.WhileStatement();
+                case ETokenType.KEYWORD_DO:
+                    return this.DoWhileStatement();
+                case ETokenType.KEYWORD_FOR:
+                    return this.ForStatement();
+            }
+
+			// Code should never reach this part
+			return null;
+		}
+
+        /// <summary>
+        /// WhileStatement
+		///		: 'while' '(' Expression ')' Statement
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule WhileStatement()
+		{
+			this.Eat(ETokenType.KEYWORD_WHILE);
+
+			this.Eat(ETokenType.LEFT_PARENTHESIS);
+			var test = this.Expression();
+			this.Eat(ETokenType.RIGHT_PARENTHESIS);
+
+			var body = this.Statement();
+
+			return this._astFactory.WhileStatement(test, body);
+		}
+
+        /// <summary>
+        /// DoWhileStatement
+		///		: 'do' Statement 'while' '(' Expression ')' ';'
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule DoWhileStatement()
+        {
+            this.Eat(ETokenType.KEYWORD_DO);
+
+            var body = this.Statement();
+
+            this.Eat(ETokenType.KEYWORD_WHILE);
+
+            this.Eat(ETokenType.LEFT_PARENTHESIS);
+            var test = this.Expression();
+            this.Eat(ETokenType.RIGHT_PARENTHESIS);
+
+            this.Eat(ETokenType.SEMICOLON);
+
+            return this._astFactory.DoWhileStatement(body, test);
+        }
+
+        /// <summary>
+        /// ForStatement
+		///		: 'for' '(' ForStatementInit ';' OptBinaryExpression ';' OptAssignmentExpression ')' Statement
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule ForStatement()
+        {
+			this.Eat(ETokenType.KEYWORD_FOR);
+			this.Eat(ETokenType.LEFT_PARENTHESIS);
+
+			BaseRule init = (this._lookahead.TokenType != ETokenType.SEMICOLON) ?
+				this.ForStatementInit() : null;
+			this.Eat(ETokenType.SEMICOLON);
+
+			BaseRule test = (this._lookahead.TokenType != ETokenType.SEMICOLON) ?
+				this.Expression() : null;
+            this.Eat(ETokenType.SEMICOLON);
+
+            BaseRule update = (this._lookahead.TokenType != ETokenType.RIGHT_PARENTHESIS) ?
+				this.Expression() : null;
+
+            this.Eat(ETokenType.RIGHT_PARENTHESIS);
+
+            var body = this.Statement();
+
+            return this._astFactory.ForStatement(init, test, update, body);
+        }
+
+        /// <summary>
+        /// ForStatementInit
+		///		: VariableStatementInit
+		///		| Expression
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule ForStatementInit()
+		{
+			if(this._lookahead.TokenType == ETokenType.KEYWORD_LET)
+			{
+				return this.VariableStatementInit();
+            }
+
+			return this.Expression();
 		}
 
         /// <summary>
@@ -164,20 +345,32 @@ namespace TestHandwrittenRDP
 		}
 
         /// <summary>
+        /// VariableStatementInit
+		///		: 'let' VariableDeclarationList
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule VariableStatementInit()
+		{
+            this.Eat(ETokenType.KEYWORD_LET);
+
+            var declarations = this.VariableDeclarationList();
+
+            return this._astFactory.VariableStatement(declarations);
+        }
+
+        /// <summary>
         /// VariableStatement
-		///		: 'let' VariableDeclarationList ';'
+		///		: VariableStatementInit ';'
 		///		;
         /// </summary>
         /// <returns></returns>
         private BaseRule VariableStatement()
 		{
-			this.Eat(ETokenType.KEYWORD_LET);
-
-			var declarations = this.VariableDeclarationList();
-
+			var variableStatement = this.VariableStatementInit();
 			this.Eat(ETokenType.SEMICOLON);
 
-			return this._astFactory.VariableStatement(declarations);
+			return variableStatement;
         }
 
         /// <summary>
@@ -358,7 +551,7 @@ namespace TestHandwrittenRDP
                 var op = this.Eat(tokenType);
                 var right = ruleBuilder();
 
-                left = new LogicalExpressionRule(op, left, right);
+                left = this._astFactory.LogicalExpression(op, left, right);
             }
 
             return left;
@@ -408,17 +601,6 @@ namespace TestHandwrittenRDP
 		}
 
         /// <summary>
-        /// LeftHandSideExpression
-		///		: Idenitifer
-		///		;
-        /// </summary>
-        /// <returns></returns>
-        private BaseRule LeftHandSideExpression()
-		{
-			return this.Identifier();
-		}
-
-        /// <summary>
         /// Identifier
 		///		: IDENTIFIER
 		///		;
@@ -463,15 +645,15 @@ namespace TestHandwrittenRDP
 
         /// <summary>
         /// MultiplicativeExpression
-		///		: PrimaryExpression
-		///		| MultiplicativeExpression MULTIPLICATIVE_OPERATOR PrimaryExpression
+		///		: UnaryExpression
+		///		| MultiplicativeExpression MULTIPLICATIVE_OPERATOR UnaryExpression
 		///		--> (Remove left recursion)
 		///		;
         /// </summary>
         /// <returns></returns>
         private BaseRule MultiplicativeExpression()
 		{
-            return this.BinaryExpression(ETokenType.MULTIPLICATIVE_OPERATOR, this.PrimaryExpression);
+            return this.BinaryExpression(ETokenType.MULTIPLICATIVE_OPERATOR, this.UnaryExpression);
         }
 
         /// <summary>
@@ -490,16 +672,56 @@ namespace TestHandwrittenRDP
                 var op = this.Eat(tokenType);
                 var right = ruleBuilder();
 
-                left = new BinaryExpressionRule(op, left, right);
+                left = this._astFactory.BinaryExpression(op, left, right);
             }
 
             return left;
         }
 
         /// <summary>
+        /// UnaryExpression
+		///		: LeftHandSideExpression
+		///		| ADDITIVE_OPERATOR UnaryExpression
+		///		| LOGICAL_NOT UnaryExpression
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule UnaryExpression()
+		{
+			BaseToken op = null;
+
+			switch(this._lookahead.TokenType)
+			{
+				case ETokenType.ADDITIVE_OPERATOR:
+				case ETokenType.LOGICAL_NOT:
+					op = this.Eat(this._lookahead.TokenType);
+					break;
+			}
+
+			if (op != null)
+			{
+				return this._astFactory.UnaryExpression(op, this.UnaryExpression());
+			}
+			else
+				return this.LeftHandSideExpression();
+		}
+
+        /// <summary>
+        /// LeftHandSideExpression
+        ///		: PrimaryExpression
+        ///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule LeftHandSideExpression()
+        {
+            return this.PrimaryExpression();
+        }
+
+        /// <summary>
         /// PrimaryExpression
 		///		: Literal
 		///		| ParenthesizedExpression
+		///		| Identifier
 		///		| LeftHandSideExpression
 		///		;
         /// </summary>
@@ -513,6 +735,8 @@ namespace TestHandwrittenRDP
 			{
 				case ETokenType.LEFT_PARENTHESIS:
 					return this.ParenthesizedExpression();
+				case ETokenType.IDENTIFIER:
+					return this.Identifier();
 				default:
                     return this.LeftHandSideExpression();
             }

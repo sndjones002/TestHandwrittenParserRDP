@@ -69,7 +69,7 @@ namespace TestHandwrittenRDPxUTests
                         If(
                             Id("y"),
                             Block(),
-                            Block( ExprStmt( BinExpr(PLUS, Id("y"), Int(1)) ) )
+                            Block( ExprStmt( Binary(PLUS, Id("y"), Int(1)) ) )
                             ),
                         null
                         )
@@ -87,11 +87,11 @@ namespace TestHandwrittenRDPxUTests
             AssertAST(parsedResult,
                 Program(
                     If(
-                        BinExpr(GREATER, Id("x"), Int(10)),
+                        Binary(GREATER, Id("x"), Int(10)),
                         If(
                             Id("y"),
                             Block(),
-                            Block(ExprStmt(BinExpr(PLUS, Id("y"), Int(1))))
+                            Block(ExprStmt(Binary(PLUS, Id("y"), Int(1))))
                             ),
                         null
                         )
@@ -109,15 +109,15 @@ namespace TestHandwrittenRDPxUTests
             AssertAST(parsedResult,
                 Program(
                     If(
-                        BinExpr(
+                        Binary(
                             EQUAL_TO,
-                            BinExpr(GREATER, Id("x"), Int(10)),
+                            Binary(GREATER, Id("x"), Int(10)),
                             Id("y")
                             ),
                         If(
                             Id("y"),
                             Block(),
-                            Block(ExprStmt(BinExpr(PLUS, Id("y"), Int(1))))
+                            Block(ExprStmt(Binary(PLUS, Id("y"), Int(1))))
                             ),
                         Block()
                         )

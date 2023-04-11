@@ -25,6 +25,21 @@ namespace TestHandwrittenRDP
             return new ExpressionStatementRule(expression);
         }
 
+        public virtual UnaryExpressionRule UnaryExpression(BaseToken token, BaseRule arg)
+        {
+            return new UnaryExpressionRule(token, arg);
+        }
+
+        public virtual BinaryExpressionRule BinaryExpression(BaseToken token, BaseRule left, BaseRule right)
+        {
+            return new BinaryExpressionRule(token, left, right);
+        }
+
+        public virtual LogicalExpressionRule LogicalExpression(BaseToken token, BaseRule left, BaseRule right)
+        {
+            return new LogicalExpressionRule(token, left, right);
+        }
+
         public virtual NumericLiteralRule NumericLiteral(string value)
         {
             return new NumericLiteralRule(int.Parse(value));
@@ -45,9 +60,19 @@ namespace TestHandwrittenRDP
             return new VariableStatementRule(declarations);
         }
 
+        public BaseRule ReturnStatement(BaseRule argument)
+        {
+            return new ReturnStatementRule(argument);
+        }
+
         public BaseRule VariableDeclaration(BaseRule id, BaseRule init)
         {
             return new VariableDeclarationRule(id, init);
+        }
+
+        public BaseRule FunctionDeclaration(BaseRule name, List<BaseRule> parameters, BaseRule body)
+        {
+            return new FunctionDeclarationRule(name, parameters, body);
         }
 
         public BaseRule IfStatement(BaseRule test, BaseRule consequent, BaseRule alternate)
@@ -63,6 +88,21 @@ namespace TestHandwrittenRDP
         public NullLiteralRule NullLiteral(string value)
         {
             return new NullLiteralRule();
+        }
+
+        public BaseRule WhileStatement(BaseRule test, BaseRule body)
+        {
+            return new WhileStatementRule(test, body);
+        }
+
+        public BaseRule DoWhileStatement(BaseRule body, BaseRule test)
+        {
+            return new DoWhileStatementRule(body, test);
+        }
+
+        public BaseRule ForStatement(BaseRule init, BaseRule test, BaseRule update, BaseRule body)
+        {
+            return new ForStatementRule(init, test, update, body);
         }
     }
 }

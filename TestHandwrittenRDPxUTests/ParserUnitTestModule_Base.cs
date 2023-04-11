@@ -26,10 +26,16 @@ namespace TestHandwrittenRDPxUTests
         protected BaseToken LESS_EQ = new BaseToken(ETokenType.RELATIONAL_OPERATOR, "<=");
         protected BaseToken EQUAL_TO = new BaseToken(ETokenType.EQUALITY_OPERATOR, "==");
         protected BaseToken NOT_EQUAL = new BaseToken(ETokenType.EQUALITY_OPERATOR, "!=");
+        protected BaseToken NOT = new BaseToken(ETokenType.LOGICAL_NOT, "!");
 
         #endregion Token Generators
 
         #region Rule Generators
+
+        protected List<BaseRule>? Parameters(params BaseRule[] rules)
+        {
+            return (rules != null) ? rules.ToList() : null;
+        }
 
         protected BaseRule Program(params BaseRule[] rules)
 		{
@@ -46,9 +52,14 @@ namespace TestHandwrittenRDPxUTests
             return new AssignmentExpressionRule(token, left, right);
         }
 
-        protected BaseRule BinExpr(BaseToken token, BaseRule left, BaseRule right)
+        protected BaseRule Binary(BaseToken token, BaseRule left, BaseRule right)
         {
             return new BinaryExpressionRule(token, left, right);
+        }
+
+        protected BaseRule Unary(BaseToken token, BaseRule argument)
+        {
+            return new UnaryExpressionRule(token, argument);
         }
 
         protected BaseRule Logical(BaseToken token, BaseRule left, BaseRule right)
@@ -74,6 +85,31 @@ namespace TestHandwrittenRDPxUTests
         protected BaseRule VarDecl(BaseRule id, BaseRule? init)
         {
             return new VariableDeclarationRule(id, init);
+        }
+
+        protected BaseRule While(BaseRule test, BaseRule body)
+        {
+            return new WhileStatementRule(test, body);
+        }
+
+        protected BaseRule DoWhile(BaseRule body, BaseRule test)
+        {
+            return new DoWhileStatementRule(body, test);
+        }
+
+        protected BaseRule For(BaseRule? init, BaseRule? test, BaseRule? update, BaseRule body)
+        {
+            return new ForStatementRule(init, test, update, body);
+        }
+
+        protected BaseRule Func(BaseRule name, List<BaseRule> parameters, BaseRule body)
+        {
+            return new FunctionDeclarationRule(name, parameters, body);
+        }
+
+        protected BaseRule Return(BaseRule argument)
+        {
+            return new ReturnStatementRule(argument);
         }
 
         protected BaseRule Empty()

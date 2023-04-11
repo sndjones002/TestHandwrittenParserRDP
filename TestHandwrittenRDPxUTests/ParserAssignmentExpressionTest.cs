@@ -57,7 +57,7 @@ namespace TestHandwrittenRDPxUTests
             AssertAST(parsedResult,
                 Program(
                     ExprStmt(
-                        Assign(ASSIGN, Id("x"), BinExpr(PLUS, Id("y"), Int(2)))
+                        Assign(ASSIGN, Id("x"), Binary(PLUS, Id("y"), Int(2)))
                         )
                     )
                 );
@@ -99,7 +99,7 @@ namespace TestHandwrittenRDPxUTests
             AssertAST(parsedResult,
                 Program(
                     ExprStmt(
-                        Assign(DIV_EQUAL, Id("x"), BinExpr(MINUS, Int(2), Id("y")))
+                        Assign(DIV_EQUAL, Id("x"), Binary(MINUS, Int(2), Id("y")))
                         )
                     )
                 );
