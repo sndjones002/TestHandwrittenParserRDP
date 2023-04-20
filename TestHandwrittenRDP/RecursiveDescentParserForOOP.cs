@@ -708,13 +708,92 @@ namespace TestHandwrittenRDP
 
         /// <summary>
         /// LeftHandSideExpression
-        ///		: MemberExpression
+        ///		: CallMemberExpression
         ///		;
         /// </summary>
         /// <returns></returns>
         private BaseRule LeftHandSideExpression()
         {
-            return this.MemberExpression();
+            return this.CallMemberExpression();
+        }
+
+        /// <summary>
+        /// CallMemberExpression
+		///		: MemberExpression
+		///		| CallExpression
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule CallMemberExpression()
+		{
+			var member = this.MemberExpression();
+
+			if (this._lookahead != null && this._lookahead.TokenType == ETokenType.LEFT_PARENTHESIS)
+				return this.CallExpression(member);
+			return member;
+        }
+
+        /// <summary>
+        /// Generic Call expression helper
+        ///
+		/// CallExpression
+		///		: Callee Arguments
+		///		;
+		///		
+        /// Callee
+		///		: MemberExpression
+		///		| CallExpression
+		///		;
+		///		
+        /// </summary>
+        /// <param name="member"></param>
+        /// <returns></returns>
+        private BaseRule CallExpression(BaseRule callee)
+		{
+			var callExpression = this._astFactory.CallExpression(callee, this.Arguments());
+
+			if (this._lookahead != null && this._lookahead.TokenType == ETokenType.LEFT_PARENTHESIS)
+				callExpression = this.CallExpression(callExpression);
+
+			return callExpression;
+        }
+
+        /// <summary>
+        /// Arguments
+		///		: '(' OptArgumentList ')'
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private List<BaseRule> Arguments()
+		{
+			this.Eat(ETokenType.LEFT_PARENTHESIS);
+
+			var arguments = (this._lookahead.TokenType != ETokenType.RIGHT_PARENTHESIS) ?
+				this.ArgumentList() : null;
+
+			this.Eat(ETokenType.RIGHT_PARENTHESIS);
+
+			return arguments;
+        }
+
+        /// <summary>
+        /// ArgumentList
+		///		: AssignmentExpression
+		///		| ArgumentList ',' AssignmentExpression
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private List<BaseRule> ArgumentList()
+		{
+			var argumentList = new List<BaseRule>();
+
+			do
+			{
+				argumentList.Add(this.AssignmentExpression());
+			} while (this._lookahead.TokenType == ETokenType.COMMA &&
+				this.Eat(ETokenType.COMMA) != null);
+
+			return argumentList;
         }
 
         /// <summary>

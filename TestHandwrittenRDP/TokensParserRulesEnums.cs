@@ -31,6 +31,7 @@ namespace TestHandwrittenRDP
         IfStatement,
         FunctionDeclaration,
         ReturnStatement,
+        CallExpression,
     }
 
     public enum ETokenType

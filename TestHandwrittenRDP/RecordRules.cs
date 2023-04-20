@@ -14,6 +14,7 @@ namespace TestHandwrittenRDP
     [JsonDerivedType(typeof(BinaryExpressionRule))]
     [JsonDerivedType(typeof(UnaryExpressionRule))]
     [JsonDerivedType(typeof(MemberExpressionRule))]
+    [JsonDerivedType(typeof(CallExpressionRule))]
     [JsonDerivedType(typeof(LogicalExpressionRule))]
     [JsonDerivedType(typeof(ProgramRule))]
     [JsonDerivedType(typeof(BlockStatementRule))]
@@ -44,6 +45,7 @@ namespace TestHandwrittenRDP
     public record BinaryExpressionRule(BaseToken Operator, BaseRule Left, BaseRule Right) : BaseRule(ELiteralType.BinaryExpression);
     public record UnaryExpressionRule(BaseToken Operator, BaseRule Argument) : BaseRule(ELiteralType.UnaryExpression);
     public record LogicalExpressionRule(BaseToken Operator, BaseRule Left, BaseRule Right) : BaseRule(ELiteralType.LogicalExpression);
+    public record CallExpressionRule(BaseRule Callee, List<BaseRule> Arguments) : BaseRule(ELiteralType.CallExpression);
 
     /// <summary>
     /// Computed is true for only square bracktes, viz., x[0]

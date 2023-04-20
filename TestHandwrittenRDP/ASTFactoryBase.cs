@@ -109,6 +109,11 @@ namespace TestHandwrittenRDP
         {
             return new MemberExpressionRule(computed, obj, property);
         }
+
+        public BaseRule CallExpression(BaseRule callee, List<BaseRule> args)
+        {
+            return new CallExpressionRule(callee, args);
+        }
     }
 }
 

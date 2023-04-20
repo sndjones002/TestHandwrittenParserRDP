@@ -97,6 +97,11 @@ namespace TestHandwrittenRDPxUTests
             return new MemberExpressionRule(computed, obj, property);
         }
 
+        protected BaseRule Call(BaseRule callee, List<BaseRule>? args)
+        {
+            return new CallExpressionRule(callee, args);
+        }
+
         protected BaseRule DoWhile(BaseRule body, BaseRule test)
         {
             return new DoWhileStatementRule(body, test);
@@ -159,6 +164,7 @@ namespace TestHandwrittenRDPxUTests
         protected void AssertAST(BaseRule? resultAst, BaseRule expectedAst)
         {
             Assert.NotNull(resultAst);
+
             Assert.Equal(
                 JsonSerializer.Serialize(resultAst),
                 JsonSerializer.Serialize(expectedAst)
