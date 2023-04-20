@@ -32,6 +32,10 @@ namespace TestHandwrittenRDP
         FunctionDeclaration,
         ReturnStatement,
         CallExpression,
+        ClassDeclaration,
+        ThisExpression,
+        BaseCall,
+        NewExpression,
     }
 
     public enum ETokenType
@@ -47,6 +51,10 @@ namespace TestHandwrittenRDP
         KEYWORD_FOR,
         KEYWORD_DEF,
 		KEYWORD_RETURN,
+        KEYWORD_CLASS,
+        KEYWORD_BASE,
+        KEYWORD_NEW,
+        KEYWORD_THIS,
 
         NUMBER,
         STRING,
@@ -77,10 +85,11 @@ namespace TestHandwrittenRDP
 		LEFT_PARENTHESIS,
         RIGHT_PARENTHESIS,
 		COMMA,
+        COLON,
 
         #endregion Markers
 
-		RELATIONAL_OPERATOR,
+        RELATIONAL_OPERATOR,
         ADDITIVE_OPERATOR,
 		MULTIPLICATIVE_OPERATOR,
 		EQUALITY_OPERATOR,

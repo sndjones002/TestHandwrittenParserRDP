@@ -34,6 +34,7 @@ namespace TestHandwrittenRDP
                 (@"\G\.", ETokenType.CHAR_DOT),
                 (@"\G\[", ETokenType.CHAR_LEFTBRACKET),
                 (@"\G\]", ETokenType.CHAR_RIGHTBRACKET),
+                (@"\G\:", ETokenType.COLON),
 
                 #endregion Symbols
 
@@ -49,8 +50,12 @@ namespace TestHandwrittenRDP
                 (@"\G\bfor\b", ETokenType.KEYWORD_FOR),
                 (@"\G\bdef\b", ETokenType.KEYWORD_DEF),
                 (@"\G\breturn\b", ETokenType.KEYWORD_RETURN),
-
                 (@"\G\belse\b", ETokenType.KEYWORD_ELSE),
+                (@"\G\bclass\b", ETokenType.KEYWORD_CLASS),
+                (@"\G\bbase\b", ETokenType.KEYWORD_BASE),
+                (@"\G\bnew\b", ETokenType.KEYWORD_NEW),
+                (@"\G\bthis\b", ETokenType.KEYWORD_THIS),
+
                 (@"\G\d+", ETokenType.NUMBER),
                 (@"\G""[^""]*""", ETokenType.STRING),
                 (@"\G\w+", ETokenType.IDENTIFIER),

@@ -7,12 +7,26 @@ class Program
     static void Main(string[] args)
     {
         string toParse = @"
-            let x = ""hello World!"";
-            let i = 0;
+            class Point {
+                def constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                }
 
-            while(i < s.length) {
-                //console.log(i, s[i]);
-                i += 1;
+                def calc() {
+                    return this.x + this.y;
+                }
+            }
+
+            class Point3D : Point {
+                def constructor(x, y, z) {
+                    base(x, y);
+                    this.z = z;
+                }
+
+                def calc() {
+                    return base() + this.z;
+                }
             }
 ";
         var myParser = new RecursiveDescentParserForOOP();

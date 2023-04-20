@@ -108,6 +108,7 @@ namespace TestHandwrittenRDP
 		///		| IterationStatement
 		///		| FunctionDeclaration
 		///		| ReturnStatement
+		///		| ClassDeclaration
 		///		;
         /// </summary>
         private BaseRule Statement()
@@ -132,9 +133,43 @@ namespace TestHandwrittenRDP
 				case ETokenType.KEYWORD_DO:
 				case ETokenType.KEYWORD_FOR:
 					return this.IterationStatement();
+				case ETokenType.KEYWORD_CLASS:
+					return this.ClassDeclaration();
                 default:
                     return this.ExpressionStatement();
             }
+		}
+
+        /// <summary>
+        /// ClassDeclaration
+		///		: 'class' Identifier OptClassExtends BlockStatement
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule ClassDeclaration()
+		{
+			this.Eat(ETokenType.KEYWORD_CLASS);
+
+			var id = this.Identifier();
+
+			var baseClass = (this._lookahead.TokenType == ETokenType.COLON) ?
+				this.ClassExtends() : null;
+
+			var body = this.BlockStatement();
+
+			return this._astFactory.ClassDeclaration(id, baseClass, body);
+		}
+
+        /// <summary>
+        /// ClassExtends
+		///		: ':' Identifier
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule ClassExtends()
+		{
+			this.Eat(ETokenType.COLON);
+			return this.Identifier();
 		}
 
         /// <summary>
@@ -719,14 +754,18 @@ namespace TestHandwrittenRDP
 
         /// <summary>
         /// CallMemberExpression
-		///		: MemberExpression
+		///		: CallExpression // with 'base' 
+		///		| MemberExpression
 		///		| CallExpression
 		///		;
         /// </summary>
         /// <returns></returns>
         private BaseRule CallMemberExpression()
 		{
-			var member = this.MemberExpression();
+			if(this._lookahead.TokenType == ETokenType.KEYWORD_BASE)
+				return this.CallExpression(this.BaseCall());
+
+            var member = this.MemberExpression();
 
 			if (this._lookahead != null && this._lookahead.TokenType == ETokenType.LEFT_PARENTHESIS)
 				return this.CallExpression(member);
@@ -837,7 +876,8 @@ namespace TestHandwrittenRDP
 		///		: Literal
 		///		| ParenthesizedExpression
 		///		| Identifier
-		///		| LeftHandSideExpression
+		///		| ThisExpression
+		///		| NewExpression
 		///		;
         /// </summary>
         /// <returns></returns>
@@ -852,17 +892,63 @@ namespace TestHandwrittenRDP
 					return this.ParenthesizedExpression();
 				case ETokenType.IDENTIFIER:
 					return this.Identifier();
+				case ETokenType.KEYWORD_THIS:
+					return this.ThisExpression();
+				case ETokenType.KEYWORD_NEW:
+					return this.NewExpression();
 				default:
-                    return this.LeftHandSideExpression();
+                    throw new SyntaxErrorException("Unexpected primary expression");
             }
 		}
 
-		/// <summary>
-		/// Literals
-		/// </summary>
-		/// <param name="tokenType"></param>
-		/// <returns></returns>
-		private bool IsLiteral(ETokenType tokenType)
+        /// <summary>
+        /// NewExpression
+		///		: 'new' MemberExpression Arguments
+		///		;
+		///
+		/// e.g., new MyNamespace.MyClass(1, 2)
+		/// 
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule NewExpression()
+		{
+			this.Eat(ETokenType.KEYWORD_NEW);
+
+			return this._astFactory.NewExpression(this.MemberExpression(), this.ArgumentList());
+		}
+
+        /// <summary>
+        /// ThisExpression
+		///		: 'this'
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule ThisExpression()
+		{
+			this.Eat(ETokenType.KEYWORD_THIS);
+
+			return this._astFactory.ThisExpression();
+		}
+
+        /// <summary>
+		/// To support that the callee is base type we have to introduce a AST Node.
+		/// 
+        /// BaseCall
+        ///		: 'this'
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule BaseCall()
+        {
+            this.Eat(ETokenType.KEYWORD_BASE);
+
+            return this._astFactory.BaseCall();
+        }
+
+        /// <summary>
+        /// Literals
+        /// </summary>
+        /// <param name="tokenType"></param>
+        /// <returns></returns>
+        private bool IsLiteral(ETokenType tokenType)
 		{
 			return tokenType == ETokenType.NUMBER ||
 				tokenType == ETokenType.STRING ||

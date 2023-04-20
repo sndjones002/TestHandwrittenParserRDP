@@ -21,6 +21,7 @@ namespace TestHandwrittenRDP
     [JsonDerivedType(typeof(EmptyStatementRule))]
     [JsonDerivedType(typeof(WhileStatementRule))]
     [JsonDerivedType(typeof(DoWhileStatementRule))]
+    [JsonDerivedType(typeof(ThisExpressionRule))]
     [JsonDerivedType(typeof(ForStatementRule))]
     [JsonDerivedType(typeof(ExpressionStatementRule))]
     [JsonDerivedType(typeof(NumericLiteralRule))]
@@ -28,6 +29,9 @@ namespace TestHandwrittenRDP
     [JsonDerivedType(typeof(BooleanLiteralRule))]
     [JsonDerivedType(typeof(NullLiteralRule))]
     [JsonDerivedType(typeof(BaseRuleList))]
+    [JsonDerivedType(typeof(BaseCallRule))]
+    [JsonDerivedType(typeof(NewExpressionRule))]
+    [JsonDerivedType(typeof(ClassDeclarationRule))]
     public record BaseRule(ELiteralType LiteralType);
 
     public record ProgramRule(List<BaseRule> Body) : BaseRule(ELiteralType.Program);
@@ -66,7 +70,11 @@ namespace TestHandwrittenRDP
     public record IfStatementRule(BaseRule Test, BaseRule Consequent, BaseRule Alternate) : BaseRule(ELiteralType.IfStatement);
 
     public record FunctionDeclarationRule(BaseRule Name, List<BaseRule> Parameters, BaseRule Body) : BaseRule(ELiteralType.FunctionDeclaration);
+    public record ClassDeclarationRule(BaseRule Id, BaseRule BaseClass, BaseRule Body) : BaseRule(ELiteralType.ClassDeclaration);
+    public record ThisExpressionRule() : BaseRule(ELiteralType.ThisExpression);
+    public record NewExpressionRule(BaseRule callee, List<BaseRule> args) : BaseRule(ELiteralType.NewExpression);
 
     public record ReturnStatementRule(BaseRule Argument) : BaseRule(ELiteralType.ReturnStatement);
+    public record BaseCallRule() : BaseRule(ELiteralType.BaseCall);
 }
 

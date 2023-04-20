@@ -152,6 +152,11 @@ namespace TestHandwrittenRDPxUTests
             return new NullLiteralRule();
         }
 
+        protected BaseRule Class(BaseRule id, BaseRule baseClass, BaseRule body)
+        {
+            return new ClassDeclarationRule(id, baseClass, body);
+        }
+
         #endregion Rule Generators
 
         #region Helpers
