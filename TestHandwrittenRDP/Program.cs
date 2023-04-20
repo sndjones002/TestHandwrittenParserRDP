@@ -6,7 +6,15 @@ class Program
 {
     static void Main(string[] args)
     {
-        string toParse = @"def empty(x, y){}";
+        string toParse = @"
+            let x = ""hello World!"";
+            let i = 0;
+
+            while(i < s.length) {
+                //console.log(i, s[i]);
+                i += 1;
+            }
+";
         var myParser = new RecursiveDescentParserForOOP();
         var parsedResult = myParser.Parse(toParse);
 

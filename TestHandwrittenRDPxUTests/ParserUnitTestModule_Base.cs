@@ -92,6 +92,11 @@ namespace TestHandwrittenRDPxUTests
             return new WhileStatementRule(test, body);
         }
 
+        protected BaseRule Member(bool computed, BaseRule obj, BaseRule property)
+        {
+            return new MemberExpressionRule(computed, obj, property);
+        }
+
         protected BaseRule DoWhile(BaseRule body, BaseRule test)
         {
             return new DoWhileStatementRule(body, test);

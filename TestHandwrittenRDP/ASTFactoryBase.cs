@@ -104,6 +104,11 @@ namespace TestHandwrittenRDP
         {
             return new ForStatementRule(init, test, update, body);
         }
+
+        public BaseRule MemberExpression(bool computed, BaseRule obj, BaseRule property)
+        {
+            return new MemberExpressionRule(computed, obj, property);
+        }
     }
 }
 

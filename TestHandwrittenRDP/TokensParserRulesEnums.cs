@@ -17,6 +17,7 @@ namespace TestHandwrittenRDP
 		BinaryExpression,
         UnaryExpression,
         LogicalExpression,
+		MemberExpression,
 
 		AssignmentExpression,
 
@@ -89,6 +90,10 @@ namespace TestHandwrittenRDP
 		IDENTIFIER,
 		SIMPLE_ASSIGNMENT, // Only '=' sign, e.g., x = 2;
 		COMPLEX_ASSIGNMENT, // +=, -=, *=, /=, etc.,
+
+		CHAR_DOT,
+		CHAR_LEFTBRACKET,
+		CHAR_RIGHTBRACKET,
     }
 }
 

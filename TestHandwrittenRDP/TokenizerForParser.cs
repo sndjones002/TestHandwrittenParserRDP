@@ -31,6 +31,9 @@ namespace TestHandwrittenRDP
                 (@"\G\(", ETokenType.LEFT_PARENTHESIS),
                 (@"\G\)", ETokenType.RIGHT_PARENTHESIS),
                 (@"\G,", ETokenType.COMMA),
+                (@"\G\.", ETokenType.CHAR_DOT),
+                (@"\G\[", ETokenType.CHAR_LEFTBRACKET),
+                (@"\G\]", ETokenType.CHAR_RIGHTBRACKET),
 
                 #endregion Symbols
 

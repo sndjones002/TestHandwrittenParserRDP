@@ -620,7 +620,7 @@ namespace TestHandwrittenRDP
 		/// <exception cref="SyntaxErrorException"></exception>
 		private BaseRule CheckValidAssignmentTarget(BaseRule rule)
 		{
-			if (rule.LiteralType == ELiteralType.Identifier)
+			if (rule.LiteralType == ELiteralType.Identifier || rule.LiteralType == ELiteralType.MemberExpression)
 				return rule;
 			throw new SyntaxErrorException("Invalid left-hand side in assignment expression");
         }
@@ -708,14 +708,50 @@ namespace TestHandwrittenRDP
 
         /// <summary>
         /// LeftHandSideExpression
-        ///		: PrimaryExpression
+        ///		: MemberExpression
         ///		;
         /// </summary>
         /// <returns></returns>
         private BaseRule LeftHandSideExpression()
         {
-            return this.PrimaryExpression();
+            return this.MemberExpression();
         }
+
+        /// <summary>
+        /// MemberExpression
+		///		: PrimaryExpression
+		///		| MemberExpression '.' Identifier
+		///		| MemberExpression '[' Expression ']'
+		///		;
+        /// </summary>
+        /// <returns></returns>
+        private BaseRule MemberExpression()
+		{
+			var obj = this.PrimaryExpression();
+
+			while(this._lookahead.TokenType == ETokenType.CHAR_DOT ||
+				this._lookahead.TokenType == ETokenType.CHAR_LEFTBRACKET)
+			{
+				if(this._lookahead.TokenType == ETokenType.CHAR_DOT)
+				{
+					this.Eat(ETokenType.CHAR_DOT);
+					var property = this.Identifier();
+
+					obj = this._astFactory.MemberExpression(false, obj, property);
+				}
+
+                if (this._lookahead.TokenType == ETokenType.CHAR_LEFTBRACKET)
+                {
+					this.Eat(ETokenType.CHAR_LEFTBRACKET);
+                    var property = this.Expression();
+                    this.Eat(ETokenType.CHAR_RIGHTBRACKET);
+                    
+                    obj = this._astFactory.MemberExpression(true, obj, property);
+                }
+            }
+
+			return obj;
+		}
 
         /// <summary>
         /// PrimaryExpression
