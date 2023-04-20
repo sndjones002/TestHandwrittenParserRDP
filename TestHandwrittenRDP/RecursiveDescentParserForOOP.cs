@@ -729,8 +729,8 @@ namespace TestHandwrittenRDP
 		{
 			var obj = this.PrimaryExpression();
 
-			while(this._lookahead.TokenType == ETokenType.CHAR_DOT ||
-				this._lookahead.TokenType == ETokenType.CHAR_LEFTBRACKET)
+			while(this._lookahead != null && (this._lookahead.TokenType == ETokenType.CHAR_DOT ||
+				this._lookahead.TokenType == ETokenType.CHAR_LEFTBRACKET))
 			{
 				if(this._lookahead.TokenType == ETokenType.CHAR_DOT)
 				{
